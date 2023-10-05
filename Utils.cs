@@ -4,31 +4,18 @@ using System.Reflection;
 
 public static class Utils
 {
-    public static Entity DiscoverEntity(this Node node, World world, Entity parent = default)
+    public static Entity DiscoverFlatEntity(this Node node, World world, Entity entity = default)
     {
-        var entity = Entity.Null();
+        if (!entity.IsValid())
+        {
+            entity = world.Entity(node.Name);
+            entity.DiscoverAndSet(node);
+        }
 
         foreach (var child in node.GetChildren())
         {
-            var component = child.GetType().GetCustomAttribute<Component>(true);
-            if (component != null)
-            {
-                if (!entity.IsValid())
-                {
-                    entity = world.Entity();
-
-                    if (parent.IsValid())
-                    {
-                        entity.ChildOf(parent);
-                    }
-                }
-
-                entity.DiscoverAndSet(child);
-            }
-            else
-            {
-                child.DiscoverEntity(world, entity);
-            }
+            entity.DiscoverAndSet(child);
+            child.DiscoverFlatEntity(world, entity);
         }
 
         return entity;
@@ -54,6 +41,7 @@ public static class Utils
             setComponentCache.Add(type, set);
         }
 
+        GD.Print($"Setting {type} to {entity}");
         set.Invoke(entity, new[] { component });
     }
 
@@ -86,6 +74,107 @@ public static class Utils
 
                 foreach (int i in it)
                     callback(it.Entity(i), ref c1[i]);
+            });
+    }
+
+    public delegate void ForEach<T1, T2>(ref T1 c1, ref T2 c2);
+
+    public static Routine Routine<T1, T2>(this World world, string name = "", ForEach<T1, T2> callback = default)
+    {
+        return world.Routine(
+            name: name,
+            filter: world.FilterBuilder().Term<T1>().Term<T2>(),
+            callback: (Iter it) =>
+            {
+                var c1 = it.Field<T1>(1);
+                var c2 = it.Field<T2>(2);
+
+                foreach (int i in it)
+                    callback(ref c1[i], ref c2[i]);
+            });
+    }
+
+    public delegate void ForEachEntity<T1, T2>(Entity entity, ref T1 c1, ref T2 c2);
+
+    public static Routine Routine<T1, T2>(this World world, string name = "", ForEachEntity<T1, T2> callback = default)
+    {
+        return world.Routine(
+            name: name,
+            filter: world.FilterBuilder().Term<T1>().Term<T2>(),
+            callback: (Iter it) =>
+            {
+                var c1 = it.Field<T1>(1);
+                var c2 = it.Field<T2>(2);
+
+                foreach (int i in it)
+                    callback(it.Entity(i), ref c1[i], ref c2[i]);
+            });
+    }
+
+    public delegate void ForEach<T1, T2, T3>(ref T1 c1, ref T2 c2, ref T3 c3);
+
+    public static Routine Routine<T1, T2, T3>(this World world, string name = "", ForEach<T1, T2, T3> callback = default)
+    {
+        return world.Routine(
+            name: name,
+            filter: world.FilterBuilder().Term<T1>().Term<T2>().Term<T3>(),
+            callback: (Iter it) =>
+            {
+                var c1 = it.Field<T1>(1);
+                var c2 = it.Field<T2>(2);
+                var c3 = it.Field<T3>(3);
+
+                foreach (int i in it)
+                    callback(ref c1[i], ref c2[i], ref c3[i]);
+            });
+    }
+
+    public delegate void ForEachEntity<T1, T2, T3>(Entity entity, ref T1 c1, ref T2 c2, ref T3 c3);
+
+    public static Routine Routine<T1, T2, T3>(this World world, string name = "", ForEachEntity<T1, T2, T3> callback = default)
+    {
+        return world.Routine(
+            name: name,
+            filter: world.FilterBuilder().Term<T1>().Term<T2>().Term<T3>(),
+            callback: (Iter it) =>
+            {
+                var c1 = it.Field<T1>(1);
+                var c2 = it.Field<T2>(2);
+                var c3 = it.Field<T3>(3);
+
+                foreach (int i in it)
+                    callback(it.Entity(i), ref c1[i], ref c2[i], ref c3[i]);
+            });
+    }
+    public static void PrepareGodotComponents(this World world)
+    {
+        var types = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(
+                type => type.GetCustomAttributes(typeof(Component), true).Length > 0 &&
+                type.IsSubclassOf(typeof(Node)));
+
+        foreach (var type in types)
+        {
+            componentFreeSystemMethod
+                .MakeGenericMethod(new Type[] { type })
+                .Invoke(null, new object?[] { world });
+        }
+    }
+
+    private static MethodInfo componentFreeSystemMethod = typeof(Utils)
+        .GetMethods()
+        .First(m => m.ToString() == "Void FreeComponentSystem[T](Flecs.NET.Core.World)");
+
+    public static void FreeComponentSystem<T>(this World world) where T : Node
+    {
+        world.Observer(
+            filter: world.FilterBuilder().Term<T>(),
+            observer: world.ObserverBuilder().Event(Ecs.OnRemove),
+            callback: (Iter it, int i) =>
+            {
+                var node = it.Field<T>(1)[i];
+                node.Free();
             });
     }
 }
