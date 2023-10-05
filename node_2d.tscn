@@ -16,13 +16,9 @@ script = ExtResource("1_1h04g")
 position = Vector2(80, 102)
 texture = ExtResource("2_lj1np")
 
-[node name="FlashCommand" type="Node" parent="player"]
-script = ExtResource("4_lt6ra")
-Color = Color(1, 0, 0, 1)
-
 [node name="MoveCommand" type="Node" parent="player"]
 script = ExtResource("4_bjraf")
-X = 600.0
+X = 300.0
 Y = 300.0
 
 [node name="Speed" type="Node" parent="player"]

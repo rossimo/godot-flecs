@@ -2,6 +2,8 @@ using Godot;
 using Flecs.NET.Core;
 using System.Reflection;
 
+struct EntityNode { }
+
 public static class Utils
 {
     public static Entity DiscoverFlatEntity(this Node node, World world, Entity entity = default)
@@ -10,6 +12,7 @@ public static class Utils
         {
             entity = world.Entity(node.Name);
             entity.DiscoverAndSet(node);
+            entity.SetSecond<EntityNode, Node>(node);
         }
 
         foreach (var child in node.GetChildren())
@@ -159,6 +162,10 @@ public static class Utils
             componentFreeSystemMethod
                 .MakeGenericMethod(new Type[] { type })
                 .Invoke(null, new object?[] { world });
+
+            componentAddSystemMethod
+                .MakeGenericMethod(new Type[] { type })
+                .Invoke(null, new object?[] { world });
         }
     }
 
@@ -175,6 +182,28 @@ public static class Utils
             {
                 var node = it.Field<T>(1)[i];
                 node.Free();
+            });
+    }
+
+    private static MethodInfo componentAddSystemMethod = typeof(Utils)
+        .GetMethods()
+        .First(m => m.ToString() == "Void AddComponentSystem[T](Flecs.NET.Core.World)");
+
+    public static void AddComponentSystem<T>(this World world) where T : Node
+    {
+        world.Observer(
+            filter: world.FilterBuilder().Term<T>(),
+            observer: world.ObserverBuilder().Event(Ecs.OnSet),
+            callback: (Iter it, int i) =>
+            {
+                var entity = it.Entity(i);
+                var node = it.Field<T>(1)[i];
+
+                if (entity.Has<EntityNode, Node>() && node.GetParentOrNull<Node>() == null)
+                {
+                    var root = entity.GetSecond<EntityNode, Node>();
+                    root.AddChild(node);
+                }
             });
     }
 }
