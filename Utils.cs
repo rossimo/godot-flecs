@@ -181,7 +181,7 @@ public static class Utils
             callback: (Iter it, int i) =>
             {
                 var component = it.Field<T>(1)[i];
-                component.Free();
+                component.QueueFree();
             });
     }
 
