@@ -21,4 +21,4 @@ project/assembly_name="New Game Project"
 
 [physics]
 
-common/physics_ticks_per_second=5
+common/physics_ticks_per_second=30

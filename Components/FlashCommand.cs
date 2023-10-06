@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Component]
+[GlobalClass, Icon("res://resources/command.png"), Component]
 public partial class FlashCommand : Node
 {
     [Export]

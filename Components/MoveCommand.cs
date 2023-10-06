@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 
-[GlobalClass, Component]
+[GlobalClass, Icon("res://resources/command.png"), Component]
 public partial class MoveCommand : Node
 {
     [Export]
@@ -40,6 +40,19 @@ public class Move
                 if (physics.Position.X == move.X && physics.Position.Y == move.Y)
                 {
                     entity.Remove<MoveCommand>();
+
+                    entity.Set(new FlashCommand()
+                    {
+                        Color = new Color(0, 1, 0)
+                    });
+
+                    var nextMove = new MoveCommand()
+                    {
+                        X = 500,
+                        Y = 100
+                    };
+                    nextMove.Name = "nextMove";
+                    entity.Set(nextMove);
                 }
             });
 }

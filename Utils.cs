@@ -159,37 +159,37 @@ public static class Utils
 
         foreach (var type in types)
         {
-            componentFreeSystemMethod
+            removeComponentSystemMethod
                 .MakeGenericMethod(new Type[] { type })
                 .Invoke(null, new object?[] { world });
 
-            componentAddSystemMethod
+            setSystemComponentMethod
                 .MakeGenericMethod(new Type[] { type })
                 .Invoke(null, new object?[] { world });
         }
     }
 
-    private static MethodInfo componentFreeSystemMethod = typeof(Utils)
+    private static MethodInfo removeComponentSystemMethod = typeof(Utils)
         .GetMethods()
-        .First(m => m.ToString() == "Void FreeComponentSystem[T](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void RemoveComponentSystem[T](Flecs.NET.Core.World)");
 
-    public static void FreeComponentSystem<T>(this World world) where T : Node
+    public static void RemoveComponentSystem<T>(this World world) where T : Node
     {
         world.Observer(
             filter: world.FilterBuilder().Term<T>(),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (Iter it, int i) =>
             {
-                var node = it.Field<T>(1)[i];
-                node.Free();
+                var component = it.Field<T>(1)[i];
+                component.Free();
             });
     }
 
-    private static MethodInfo componentAddSystemMethod = typeof(Utils)
+    private static MethodInfo setSystemComponentMethod = typeof(Utils)
         .GetMethods()
-        .First(m => m.ToString() == "Void AddComponentSystem[T](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void SetComponentSystem[T](Flecs.NET.Core.World)");
 
-    public static void AddComponentSystem<T>(this World world) where T : Node
+    public static void SetComponentSystem<T>(this World world) where T : Node
     {
         world.Observer(
             filter: world.FilterBuilder().Term<T>(),
@@ -197,12 +197,12 @@ public static class Utils
             callback: (Iter it, int i) =>
             {
                 var entity = it.Entity(i);
-                var node = it.Field<T>(1)[i];
+                var component = it.Field<T>(1)[i];
 
-                if (entity.Has<EntityNode, Node>() && node.GetParentOrNull<Node>() == null)
+                if (entity.Has<EntityNode, Node>() && component.GetParentOrNull<Node>() == null)
                 {
                     var root = entity.GetSecond<EntityNode, Node>();
-                    root.AddChild(node);
+                    root.AddChild(component);
                 }
             });
     }

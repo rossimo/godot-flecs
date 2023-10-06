@@ -9,10 +9,11 @@ public partial class Scene : Node2D
 	{
 		world.Set(new Time());
 		world.PrepareGodotComponents();
+
 		Physics.TopLevel(world);
-		Physics.Sync(world);
 		Flash.System(world);
 		Move.System(world);
+		Physics.Sync(world);
 
 		foreach (var node in GetChildren())
 		{

@@ -1,6 +1,6 @@
 using Godot;
 
-[GlobalClass, Component]
+[GlobalClass, Icon("res://resources/component.png"), Component]
 public partial class Speed : Node
 {
     [Export]
