@@ -11,7 +11,9 @@ public partial class FlashCommand : Node
 public class Flash
 {
     public static Routine System(World world) =>
-        world.Routine(callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
+        world.Routine(
+            filter: world.FilterBuilder().Term<Sprite2D>().Term<FlashCommand>(),
+            callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
             {
                 entity.Remove<FlashCommand>();
 

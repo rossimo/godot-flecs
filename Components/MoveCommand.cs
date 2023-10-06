@@ -13,7 +13,9 @@ public partial class MoveCommand : Node
 public class Move
 {
     public static Routine System(World world) =>
-        world.Routine(callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics, ref Speed speed) =>
+        world.Routine(
+            filter: world.FilterBuilder().Term<MoveCommand>().Term<CharacterBody2D>().Term<Speed>(),
+            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics, ref Speed speed) =>
             {
                 var timeScale = world.Get<Time>().Scale;
 

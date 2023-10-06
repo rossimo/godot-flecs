@@ -33,7 +33,9 @@ public class Physics
             });
 
     public static Routine Sync(World world) =>
-        world.Routine(callback: (Entity entity, ref CharacterBody2D physics, ref Sprite2D sprite) =>
+        world.Routine(
+            filter: world.FilterBuilder().Term<CharacterBody2D>().Term<Sprite2D>(),
+            callback: (Entity entity, ref CharacterBody2D physics, ref Sprite2D sprite) =>
         {
             if (!physics.Position.Equals(sprite.Position))
             {

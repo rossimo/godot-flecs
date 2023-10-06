@@ -1,11 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=6 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Scene.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://c5wowpvf6e8fq" path="res://icon.svg" id="2_lj1np"]
 [ext_resource type="Script" path="res://Components/MoveCommand.cs" id="4_bjraf"]
-[ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_ftvu3"]
 [ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
-[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="6_sypsc"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 50.0
@@ -21,9 +19,6 @@ texture = ExtResource("2_lj1np")
 script = ExtResource("5_m55ya")
 Value = 2.0
 
-[node name="CollisionTrigger" type="Node" parent="player"]
-script = ExtResource("5_ftvu3")
-
 [node name="CharacterBody2D" type="CharacterBody2D" parent="player"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="player/CharacterBody2D"]
@@ -33,7 +28,3 @@ shape = SubResource("CircleShape2D_fkvev")
 script = ExtResource("4_bjraf")
 X = 300.0
 Y = 300.0
-
-[node name="FlashCommand" type="Node" parent="player"]
-script = ExtResource("6_sypsc")
-Color = Color(0, 1, 0, 1)
