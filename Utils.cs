@@ -75,11 +75,10 @@ public static class Utils
     public static void RemoveComponentSystem<T>(this World world) where T : Node
     {
         world.Observer(
-            filter: world.FilterBuilder().Term<T>(),
+            filter: world.FilterBuilder<T>(),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
-            callback: (Iter it, int i) =>
+            callback: (ref T component) =>
             {
-                var component = it.Field<T>(1)[i];
                 component.QueueFree();
             });
     }
@@ -91,13 +90,10 @@ public static class Utils
     public static void SetComponentSystem<T>(this World world) where T : Node
     {
         world.Observer(
-            filter: world.FilterBuilder().Term<T>(),
+            filter: world.FilterBuilder<T>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Iter it, int i) =>
+            callback: (Entity entity, ref T component) =>
             {
-                var entity = it.Entity(i);
-                var component = it.Field<T>(1)[i];
-
                 if (entity.Has<EntityNode, Node>() && component.GetParentOrNull<Node>() == null)
                 {
                     var root = entity.GetSecond<EntityNode, Node>();

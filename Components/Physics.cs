@@ -22,11 +22,10 @@ public class Physics
 
     public static Observer TopLevel(World world) =>
         world.Observer(
-            filter: world.FilterBuilder().Term<CharacterBody2D>(),
+            filter: world.FilterBuilder<CharacterBody2D>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Iter it, int i) =>
+            callback: (ref CharacterBody2D node) =>
             {
-                var node = it.Field<CharacterBody2D>(1)[i];
                 var globalPosition = node.GlobalPosition;
                 node.TopLevel = true;
                 node.GlobalPosition = globalPosition;
@@ -34,7 +33,7 @@ public class Physics
 
     public static Routine Sync(World world) =>
         world.Routine(
-            filter: world.FilterBuilder().Term<CharacterBody2D>().Term<Sprite2D>(),
+            filter: world.FilterBuilder<CharacterBody2D, Sprite2D>(),
             callback: (Entity entity, ref CharacterBody2D physics, ref Sprite2D sprite) =>
         {
             if (!physics.Position.Equals(sprite.Position))

@@ -12,7 +12,7 @@ public class Flash
 {
     public static Routine System(World world) =>
         world.Routine(
-            filter: world.FilterBuilder().Term<Sprite2D>().Term<FlashCommand>(),
+            filter: world.FilterBuilder<Sprite2D, FlashCommand>(),
             callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
             {
                 entity.Remove<FlashCommand>();
