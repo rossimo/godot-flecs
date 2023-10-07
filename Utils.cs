@@ -141,7 +141,10 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (ref T component) =>
             {
-                component.QueueFree();
+                if (GDScript.IsInstanceValid(component))
+                {
+                    component.QueueFree();
+                }
             });
     }
 

@@ -1,19 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=9 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Scene.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://c5wowpvf6e8fq" path="res://icon.svg" id="2_lj1np"]
 [ext_resource type="Script" path="res://Components/MoveCommand.cs" id="4_bjraf"]
 [ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
 [ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
-[ext_resource type="Script" path="res://Components/TargetSelf.cs" id="6_3jplw"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="7_n6hxt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 50.0
-
-[sub_resource type="Resource" id="Resource_fwab2"]
-script = ExtResource("6_3jplw")
-Value = 10.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 60.0
@@ -41,14 +36,26 @@ Y = 300.0
 
 [node name="CollisionTrigger" type="Node" parent="player"]
 script = ExtResource("5_si3dh")
-Target = SubResource("Resource_fwab2")
 
 [node name="FlashCommand" type="Node" parent="player/CollisionTrigger"]
 script = ExtResource("7_n6hxt")
 Color = Color(1, 0, 0, 1)
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+[node name="MoveCommand" type="Node" parent="player/CollisionTrigger"]
+script = ExtResource("4_bjraf")
+X = 10.0
+Y = 10.0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
-position = Vector2(258, 215)
+[node name="Speed" type="Node" parent="player/CollisionTrigger"]
+script = ExtResource("5_m55ya")
+Value = 5.0
+
+[node name="obstruction" type="Sprite2D" parent="."]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(263, 285)
+texture = ExtResource("2_lj1np")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="obstruction"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="obstruction/CharacterBody2D"]
 shape = SubResource("CircleShape2D_wr2re")
