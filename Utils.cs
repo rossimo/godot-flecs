@@ -10,9 +10,10 @@ public static class Utils
     {
         if (!entity.IsValid())
         {
-            entity = world.Entity(node.Name);
+            entity = world.Entity(node.GetPath());
             entity.DiscoverAndSet(node);
             entity.SetSecond<EntityNode, Node>(node);
+            node.SetEntity(entity);
         }
 
         foreach (var child in node.GetChildren())
@@ -22,6 +23,16 @@ public static class Utils
         }
 
         return entity;
+    }
+
+    public static void SetEntity(this Node node, Entity entity)
+    {
+        node.SetMeta("entity", entity.Path());
+    }
+
+    public static Entity GetEntity(this Node node, World world)
+    {
+        return world.Entity(node.GetMeta("entity").AsString());
     }
 
     private static Dictionary<Type, MethodInfo> setComponentCache = new Dictionary<Type, MethodInfo>();
