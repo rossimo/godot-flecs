@@ -1,7 +1,7 @@
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public sealed class Component : Attribute
+public sealed class Many : Attribute
 {
-    public Component()
+    public Many()
     {
     }
 }

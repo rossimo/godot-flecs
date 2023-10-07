@@ -33,9 +33,17 @@ public class Move
                     travel = new Vector2(move.X, move.Y) - physics.Position;
                 }
 
-                if (physics.MoveAndCollide(travel) != null)
+                var collision = physics.MoveAndCollide(travel);
+                if (collision != null)
                 {
                     entity.Remove<MoveCommand>();
+                    entity.Trigger<CollisionTrigger>();
+
+                    var other = collision.GetCollider().GetEntity();
+                    if (other.IsValid())
+                    {
+                        other.Trigger<CollisionTrigger>();
+                    }
                 }
 
                 if (physics.Position.X == move.X && physics.Position.Y == move.Y)

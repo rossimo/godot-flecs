@@ -6,40 +6,71 @@ struct EntityNode { }
 
 public static class Utils
 {
-    public static Entity DiscoverFlatEntity(this Node node, World world, Entity entity = default)
+    public static Entity DiscoverEntity(this Node node, World world, Entity entity = default)
     {
         if (!entity.IsValid())
         {
-            entity = world.Entity(node.GetPath());
-            entity.DiscoverAndSet(node);
+            var name = node.GetPath();
+            GD.Print($"Creating {name}");
+            entity = world.Entity(name);
+            entity.ReflectionSet(node);
             entity.SetSecond<EntityNode, Node>(node);
             node.SetEntity(entity);
         }
 
-        foreach (var child in node.GetChildren())
+        foreach (var component in node.GetChildren())
         {
-            entity.DiscoverAndSet(child);
-            child.DiscoverFlatEntity(world, entity);
+            if (component.GetType().HasMany())
+            {
+                var element = component.DiscoverEntity(world);
+                GD.Print($"Adding child {element} to {entity}");
+                element.ChildOf(entity);
+            }
+            else
+            {
+                entity.ReflectionSet(component);
+            }
         }
 
         return entity;
     }
 
-    public static void SetEntity(this Node node, Entity entity)
+    public static void SetEntity(this GodotObject @object, Entity entity)
     {
-        node.SetMeta("entity", entity.Path());
+        @object.SetMeta("entity", entity.Id.Value);
     }
 
-    public static Entity GetEntity(this Node node, World world)
+    public static Entity GetEntity(this GodotObject @object)
     {
-        return world.Entity(node.GetMeta("entity").AsString());
+        if (!@object.HasMeta("entity"))
+            return Entity.Null();
+
+        var value = @object.GetMeta("entity").AsUInt64();
+        return new Entity(value);
+    }
+
+    public static Entity GetEntity(this Node node)
+    {
+        var entity = node.GetEntity();
+        if (entity.IsValid())
+            return entity;
+
+        var parent = node.GetParentOrNull<Node>();
+
+        return parent == null
+            ? Entity.Null()
+            : parent.GetEntity();
     }
 
     private static Dictionary<Type, MethodInfo> setComponentCache = new Dictionary<Type, MethodInfo>();
 
+    private static Dictionary<string, MethodInfo> getComponentCache = new Dictionary<string, MethodInfo>();
+
     private static MethodInfo entitySetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Set[T](T)");
 
-    public static void DiscoverAndSet(this Entity entity, object component)
+    private static MethodInfo entityGetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "T& Get[T]()");
+
+    public static void ReflectionSet(this Entity entity, object component)
     {
         var type = component.GetType();
         MethodInfo set = null;
@@ -59,12 +90,32 @@ public static class Utils
         set.Invoke(entity, new[] { component });
     }
 
+    public static object ReflectionGet(this Entity entity, string componentName)
+    {
+        MethodInfo get = null;
+
+        if (getComponentCache.ContainsKey(componentName))
+        {
+            get = getComponentCache[componentName];
+        }
+
+        if (get == null)
+        {
+            var type = Assembly.GetExecutingAssembly().GetType(componentName);
+
+            get = entityGetComponentdMethod.MakeGenericMethod(new Type[] { type });
+            getComponentCache.Add(componentName, get);
+        }
+
+        return get.Invoke(entity, Array.Empty<object>());
+    }
+
     public static void PrepareGodotComponents(this World world)
     {
         var types = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(
-                type => type.GetCustomAttributes(typeof(Component), true).Length > 0 &&
+            .Where(type =>
+                type.HasComponent() &&
                 type.IsSubclassOf(typeof(Node)));
 
         foreach (var type in types)
@@ -111,5 +162,43 @@ public static class Utils
                     root.AddChild(component);
                 }
             });
+    }
+
+    public static bool HasComponent(this Type type)
+    {
+        return type.GetCustomAttributes(typeof(Component), true).Length > 0;
+    }
+
+    public static bool HasMany(this Type type)
+    {
+        return type.GetCustomAttributes(typeof(Many), true).Length > 0;
+    }
+
+    public static bool HasMany(this Node node)
+    {
+        return node.GetType().HasMany();
+    }
+
+    public static void Trigger<T>(this Entity entity)
+    {
+        var typeName = typeof(T).Name;
+        entity.Children((Entity child) =>
+        {
+            if (child.Has<T>())
+            {
+                var trigger = child.Get<T>();
+                child.Each((Id id) =>
+                {
+                    var name = id.ToString();
+                    if (id.IsEntity() && name != typeName)
+                    {
+                        var component = child.ReflectionGet(name);
+                        entity.ReflectionSet(component is Node node
+                            ? node.Duplicate()
+                            : component);
+                    }
+                });
+            }
+        });
     }
 }

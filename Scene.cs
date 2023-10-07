@@ -1,5 +1,6 @@
 using Godot;
 using Flecs.NET.Core;
+using static Flecs.NET.Bindings.Native;
 
 public partial class Scene : Node2D
 {
@@ -17,7 +18,7 @@ public partial class Scene : Node2D
 
 		foreach (var node in GetChildren())
 		{
-			node.DiscoverFlatEntity(world);
+			node.DiscoverEntity(world);
 		}
 	}
 
