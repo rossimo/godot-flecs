@@ -136,6 +136,9 @@ public static class Interop
                             ? node.Duplicate()
                             : component;
 
+                        if (clone == null)
+                            throw new Exception($"Unable to create {name}");
+
                         if (target is TargetSelf)
                         {
                             entity.ReflectionSet(clone);

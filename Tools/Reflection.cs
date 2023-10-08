@@ -19,7 +19,7 @@ public static class Reflection
     public static void ReflectionSet(this Entity entity, object component)
     {
         var type = component.GetType();
-        MethodInfo set = null;
+        MethodInfo? set = null;
 
         if (setComponentCache.ContainsKey(type))
         {
@@ -35,21 +35,22 @@ public static class Reflection
         set.Invoke(entity, new[] { component });
     }
 
-    public static object ReflectionGet(this Entity entity, string componentName)
+    public static object? ReflectionGet(this Entity entity, string typeName)
     {
-        MethodInfo get = null;
+        MethodInfo? get = null;
 
-        if (getComponentCache.ContainsKey(componentName))
+        if (getComponentCache.ContainsKey(typeName))
         {
-            get = getComponentCache[componentName];
+            get = getComponentCache[typeName];
         }
 
         if (get == null)
         {
-            var type = Assembly.GetExecutingAssembly().GetType(componentName);
+            var type = Assembly.GetExecutingAssembly().GetType(typeName);
+            if (type == null) throw new Exception($"Type {typeName} not found");
 
             get = entityGetComponentdMethod.MakeGenericMethod(new Type[] { type });
-            getComponentCache.Add(componentName, get);
+            getComponentCache.Add(typeName, get);
         }
 
         return get.Invoke(entity, Array.Empty<object>());
@@ -57,7 +58,7 @@ public static class Reflection
 
     public static void ReflectionRemove(this Entity entity, Type type)
     {
-        MethodInfo remove = null;
+        MethodInfo? remove = null;
 
         if (removeComponentCache.ContainsKey(type))
         {
