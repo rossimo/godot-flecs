@@ -39,9 +39,10 @@ public class Move
                     entity.Remove<MoveCommand>();
 
                     var other = collision.GetCollider().FindEntity(world);
-
                     entity.Trigger<CollisionTrigger>(other);
-                    other.Trigger<CollisionTrigger>(entity);
+
+                    if (other.IsValid())
+                        other.Trigger<CollisionTrigger>(entity);
                 }
 
                 if (physics.Position.X == move.X && physics.Position.Y == move.Y)
