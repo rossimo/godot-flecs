@@ -23,6 +23,7 @@ public static class Utils
         {
             if (entity.IsValid() && node.GetType().HasComponent())
             {
+                GD.Print($"Setting {node.GetType()} to {entity}");
                 entity.ReflectionSet(node);
             }
         };
@@ -38,14 +39,11 @@ public static class Utils
             }
             else
             {
+                GD.Print($"Setting {child.GetType()} to {entity}");
                 entity.ReflectionSet(child);
             }
 
-            if (type.HasComponent())
-            {
-                child.TreeExiting += () => entity.ReflectionRemove(type);
-            }
-            else
+            if (!type.HasComponent())
             {
                 child.DiscoverEntity(world, entity);
             }
@@ -193,7 +191,7 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (Entity entity, ref T component) =>
             {
-                GD.Print($"Removing {component.GetType()} from {entity}");
+                GD.Print($"Removed {component.GetType()} from {entity}");
                 if (GDScript.IsInstanceValid(component))
                 {
                     component.QueueFree();
@@ -215,7 +213,6 @@ public static class Utils
                 if (entity.Has<Parent, Node>() &&
                     component.GetParentOrNull<Node>() == null)
                 {
-                    GD.Print($"Setting {component.GetType()} to {entity}");
                     var parent = entity.GetSecond<Parent, Node>();
 
                     if (!component.HasMany())
