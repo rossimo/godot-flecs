@@ -17,23 +17,23 @@ public class Move
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics, ref Speed speed) =>
             {
-                var timeScale = world.Get<Time>().Scale;
+                var scale = world.Get<Time>().Scale;
 
                 var direction = physics.Position
                     .DirectionTo(new Vector2(move.X, move.Y))
                     .Normalized();
 
-                var travel = direction * speed.Value * timeScale * Physics.SPEED_SCALE;
+                var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
-                var remainingDistance = physics.Position.DistanceTo(new Vector2(move.X, move.Y));
-                var travelDistance = physics.Position.DistanceTo(physics.Position + travel);
+                var remaining = physics.Position.DistanceTo(new Vector2(move.X, move.Y));
+                var full = vector.DistanceTo(Vector2.Zero);
 
-                if (remainingDistance < travelDistance)
+                if (remaining < full)
                 {
-                    travel = new Vector2(move.X, move.Y) - physics.Position;
+                    vector = new Vector2(move.X, move.Y) - physics.Position;
                 }
 
-                var collision = physics.MoveAndCollide(travel);
+                var collision = physics.MoveAndCollide(vector);
                 if (collision != null)
                 {
                     entity.Remove<MoveCommand>();
