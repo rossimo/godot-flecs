@@ -8,7 +8,7 @@ public partial class Scene : Node2D
 	public override void _Ready()
 	{
 		world.Set(new Time());
-		world.PrepareGodotComponents();
+		Interop.NodeSystems(world);
 
 		Physics.TopLevel(world);
 		Flash.System(world);
@@ -17,7 +17,7 @@ public partial class Scene : Node2D
 
 		foreach (var node in GetChildren())
 		{
-			node.DiscoverEntity(world);
+			node.CreateEntity(world);
 		}
 	}
 
