@@ -16,19 +16,38 @@ public static class Utils
             entity.ReflectionSet(node);
             entity.SetSecond<EntityNode, Node>(node);
             node.SetEntity(entity);
+            node.TreeExiting += () => world.DeleteWith(entity);
         }
 
-        foreach (var component in node.GetChildren())
+        node.ChildEnteredTree += (Node node) =>
         {
-            if (component.GetType().HasMany())
+            if (entity.IsValid() && node.GetType().HasComponent())
             {
-                var element = component.DiscoverEntity(world);
+                entity.ReflectionSet(node);
+            }
+        };
+
+        foreach (var child in node.GetChildren())
+        {
+            var type = child.GetType();
+            if (type.HasMany())
+            {
+                var element = child.DiscoverEntity(world);
                 GD.Print($"Adding child {element} to {entity}");
                 element.ChildOf(entity);
             }
             else
             {
-                entity.ReflectionSet(component);
+                entity.ReflectionSet(child);
+            }
+
+            if (type.HasComponent())
+            {
+                child.TreeExiting += () => entity.ReflectionRemove(type);
+            }
+            else
+            {
+                child.DiscoverEntity(world, entity);
             }
         }
 
@@ -40,18 +59,18 @@ public static class Utils
         @object.SetMeta("entity", entity.Id.Value);
     }
 
-    public static Entity GetEntity(this GodotObject @object)
+    public static Entity FindEntity(this GodotObject @object, World world)
     {
         if (!@object.HasMeta("entity"))
             return Entity.Null();
 
         var value = @object.GetMeta("entity").AsUInt64();
-        return new Entity(value);
+        return world.Entity(value);
     }
 
-    public static Entity GetEntity(this Node node)
+    public static Entity FindEntity(this Node node, World world)
     {
-        var entity = node.GetEntity();
+        var entity = (node as GodotObject).FindEntity(world);
         if (entity.IsValid())
             return entity;
 
@@ -59,12 +78,15 @@ public static class Utils
 
         return parent == null
             ? Entity.Null()
-            : parent.GetEntity();
+            : parent.FindEntity(world);
     }
 
     private static Dictionary<Type, MethodInfo> setComponentCache = new Dictionary<Type, MethodInfo>();
 
     private static Dictionary<string, MethodInfo> getComponentCache = new Dictionary<string, MethodInfo>();
+
+    private static Dictionary<Type, MethodInfo> removeComponentCache = new Dictionary<Type, MethodInfo>();
+
 
     private static MethodInfo entitySetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Set[T](T)");
 
@@ -86,7 +108,6 @@ public static class Utils
             setComponentCache.Add(type, set);
         }
 
-        GD.Print($"Setting {type} to {entity}");
         set.Invoke(entity, new[] { component });
     }
 
@@ -108,6 +129,26 @@ public static class Utils
         }
 
         return get.Invoke(entity, Array.Empty<object>());
+    }
+
+    private static MethodInfo entityRemoveComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Remove[T]()");
+
+    public static void ReflectionRemove(this Entity entity, Type type)
+    {
+        MethodInfo remove = null;
+
+        if (removeComponentCache.ContainsKey(type))
+        {
+            remove = removeComponentCache[type];
+        }
+
+        if (remove == null)
+        {
+            remove = entityRemoveComponentdMethod.MakeGenericMethod(new Type[] { type });
+            removeComponentCache.Add(type, remove);
+        }
+
+        remove.Invoke(entity, Array.Empty<object>());
     }
 
     public static void PrepareGodotComponents(this World world)
@@ -139,10 +180,11 @@ public static class Utils
         world.Observer(
             filter: world.FilterBuilder<T>(),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
-            callback: (ref T component) =>
+            callback: (Entity entity, ref T component) =>
             {
                 if (GDScript.IsInstanceValid(component))
                 {
+                    GD.Print($"Removing {component.GetType()} from {entity}");
                     component.QueueFree();
                 }
             });
@@ -159,7 +201,11 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref T component) =>
             {
-                if (entity.Has<EntityNode, Node>() && component.GetParentOrNull<Node>() == null)
+                GD.Print($"Setting {component.GetType()} to {entity}");
+
+                if (GDScript.IsInstanceValid(component) &&
+                    entity.Has<EntityNode, Node>() &&
+                    component.GetParentOrNull<Node>() == null)
                 {
                     var root = entity.GetSecond<EntityNode, Node>();
                     root.AddChild(component);
@@ -185,17 +231,17 @@ public static class Utils
     public static void Trigger<T>(this Entity entity)
     {
         var typeName = typeof(T).Name;
-        entity.Children((Entity child) =>
+        entity.Children((Entity triggerEntity) =>
         {
-            if (child.Has<T>())
+            if (triggerEntity.Has<T>())
             {
-                var trigger = child.Get<T>();
-                child.Each((Id id) =>
+                var triggerComponent = triggerEntity.Get<T>();
+                triggerEntity.Each((Id id) =>
                 {
                     var name = id.ToString();
                     if (id.IsEntity() && name != typeName)
                     {
-                        var component = child.ReflectionGet(name);
+                        var component = triggerEntity.ReflectionGet(name);
                         entity.ReflectionSet(component is Node node
                             ? node.Duplicate()
                             : component);

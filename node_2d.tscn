@@ -51,7 +51,6 @@ script = ExtResource("5_m55ya")
 Value = 5.0
 
 [node name="obstruction" type="Sprite2D" parent="."]
-modulate = Color(1, 0, 0, 1)
 position = Vector2(263, 285)
 texture = ExtResource("2_lj1np")
 

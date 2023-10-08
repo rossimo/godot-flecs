@@ -39,7 +39,7 @@ public class Move
                     entity.Remove<MoveCommand>();
                     entity.Trigger<CollisionTrigger>();
 
-                    var other = collision.GetCollider().GetEntity();
+                    var other = collision.GetCollider().FindEntity(world);
                     if (other.IsValid())
                     {
                         other.Trigger<CollisionTrigger>();
