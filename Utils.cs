@@ -99,7 +99,6 @@ public static class Utils
 
     private static Dictionary<Type, MethodInfo> removeComponentCache = new Dictionary<Type, MethodInfo>();
 
-
     private static MethodInfo entitySetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Set[T](T)");
 
     private static MethodInfo entityGetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "T& Get[T]()");
@@ -194,10 +193,10 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (Entity entity, ref T component) =>
             {
+                GD.Print($"Removing {component.GetType()} from {entity}");
                 if (GDScript.IsInstanceValid(component))
                 {
-                    GD.Print($"Removing {component.GetType()} from {entity}");
-                    component.Free();
+                    component.QueueFree();
                 }
             });
     }
@@ -213,12 +212,23 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref T component) =>
             {
-                if (GDScript.IsInstanceValid(component) &&
-                    entity.Has<EntityNode, Node>() &&
+                if (entity.Has<EntityNode, Node>() &&
                     component.GetParentOrNull<Node>() == null)
                 {
                     GD.Print($"Setting {component.GetType()} to {entity}");
                     var root = entity.GetSecond<EntityNode, Node>();
+
+                    if (!component.HasMany())
+                    {
+                        foreach (var child in root.GetChildren())
+                        {
+                            if (GDScript.IsInstanceValid(child) && child.GetType() == component.GetType())
+                            {
+                                child.Free();
+                            }
+                        }
+                    }
+
                     root.AddChild(component);
                 }
             });
