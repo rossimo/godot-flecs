@@ -59,7 +59,7 @@ public static class Utils
         @object.SetMeta("entity", entity.Id.Value);
     }
 
-    public static Entity FindEntity(this GodotObject @object, World world)
+    public static Entity DeserializeEntity(this GodotObject @object, World world)
     {
         if (!@object.HasMeta("entity"))
             return Entity.Null();
@@ -68,9 +68,21 @@ public static class Utils
         return world.Entity(value);
     }
 
+    public static Entity FindEntity(this GodotObject @object, World world)
+    {
+        if (@object is Node node)
+        {
+            return node.FindEntity(world);
+        }
+        else
+        {
+            return @object.DeserializeEntity(world);
+        }
+    }
+
     public static Entity FindEntity(this Node node, World world)
     {
-        var entity = (node as GodotObject).FindEntity(world);
+        var entity = node.DeserializeEntity(world);
         if (entity.IsValid())
             return entity;
 
@@ -201,12 +213,11 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref T component) =>
             {
-                GD.Print($"Setting {component.GetType()} to {entity}");
-
                 if (GDScript.IsInstanceValid(component) &&
                     entity.Has<EntityNode, Node>() &&
                     component.GetParentOrNull<Node>() == null)
                 {
+                    GD.Print($"Setting {component.GetType()} to {entity}");
                     var root = entity.GetSecond<EntityNode, Node>();
                     root.AddChild(component);
                 }
@@ -228,23 +239,38 @@ public static class Utils
         return node.GetType().HasMany();
     }
 
-    public static void Trigger<T>(this Entity entity)
+    public static void Trigger<T>(this Entity entity, Entity other = default) where T : Trigger
     {
+        if (!entity.IsValid())
+        {
+            return;
+        }
+
         var typeName = typeof(T).Name;
         entity.Children((Entity triggerEntity) =>
         {
             if (triggerEntity.Has<T>())
             {
                 var triggerComponent = triggerEntity.Get<T>();
+                var target = triggerComponent.Target;
                 triggerEntity.Each((Id id) =>
                 {
                     var name = id.ToString();
                     if (id.IsEntity() && name != typeName)
                     {
                         var component = triggerEntity.ReflectionGet(name);
-                        entity.ReflectionSet(component is Node node
+                        var clone = component is Node node
                             ? node.Duplicate()
-                            : component);
+                            : component;
+
+                        if (target is TargetSelf)
+                        {
+                            entity.ReflectionSet(clone);
+                        }
+                        else if (target is TargetOther && other.IsValid())
+                        {
+                            other.ReflectionSet(clone);
+                        }
                     }
                 });
             }

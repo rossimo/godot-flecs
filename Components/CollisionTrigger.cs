@@ -1,8 +1,6 @@
 using Godot;
 
 [GlobalClass, Icon("res://resources/trigger.png"), Component, Many]
-public partial class CollisionTrigger : Node
+public partial class CollisionTrigger : Trigger
 {
-    [Export]
-    public Target? Target { get; set; }
 }
