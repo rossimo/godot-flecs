@@ -197,7 +197,7 @@ public static class Utils
                 if (GDScript.IsInstanceValid(component))
                 {
                     GD.Print($"Removing {component.GetType()} from {entity}");
-                    component.QueueFree();
+                    component.Free();
                 }
             });
     }
