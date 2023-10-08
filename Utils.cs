@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 using System.Reflection;
 
-struct EntityNode { }
+struct Parent { }
 
 public static class Utils
 {
@@ -14,7 +14,7 @@ public static class Utils
             GD.Print($"Creating {name}");
             entity = world.Entity(name);
             entity.ReflectionSet(node);
-            entity.SetSecond<EntityNode, Node>(node);
+            entity.SetSecond<Parent, Node>(node);
             node.SetEntity(entity);
             node.TreeExiting += () => world.DeleteWith(entity);
         }
@@ -212,15 +212,15 @@ public static class Utils
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref T component) =>
             {
-                if (entity.Has<EntityNode, Node>() &&
+                if (entity.Has<Parent, Node>() &&
                     component.GetParentOrNull<Node>() == null)
                 {
                     GD.Print($"Setting {component.GetType()} to {entity}");
-                    var root = entity.GetSecond<EntityNode, Node>();
+                    var parent = entity.GetSecond<Parent, Node>();
 
                     if (!component.HasMany())
                     {
-                        foreach (var child in root.GetChildren())
+                        foreach (var child in parent.GetChildren())
                         {
                             if (GDScript.IsInstanceValid(child) && child.GetType() == component.GetType())
                             {
@@ -229,7 +229,7 @@ public static class Utils
                         }
                     }
 
-                    root.AddChild(component);
+                    parent.AddChild(component);
                 }
             });
     }
