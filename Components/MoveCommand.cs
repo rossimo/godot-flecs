@@ -12,7 +12,12 @@ public partial class MoveCommand : Node
 
 public class Move
 {
-    public static Routine System(World world) =>
+    public static IEnumerable<Routine> Systems(World world) =>
+        new[] {
+            MoveAndCollide(world),
+        };
+
+    public static Routine MoveAndCollide(World world) =>
         world.Routine(
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics, ref Speed speed) =>
@@ -34,20 +39,22 @@ public class Move
                 }
 
                 var collision = physics.MoveAndCollide(vector);
-                if (collision != null)
+
+                if ((physics.Position.X == move.X && physics.Position.Y == move.Y) ||
+                    collision != null)
                 {
                     entity.Remove<MoveCommand>();
+                }
 
+                if (collision != null)
+                {
                     var other = collision.GetCollider().FindEntity(world);
                     entity.Trigger<CollisionTrigger>(other);
 
                     if (other.IsValid())
+                    {
                         other.Trigger<CollisionTrigger>(entity);
-                }
-
-                if (physics.Position.X == move.X && physics.Position.Y == move.Y)
-                {
-                    entity.Remove<MoveCommand>();
+                    }
                 }
             });
 }

@@ -10,7 +10,12 @@ public partial class FlashCommand : Node
 
 public class Flash
 {
-    public static Routine System(World world) =>
+    public static IEnumerable<Routine> Systems(World world) =>
+        new[] {
+            Animate(world),
+        };
+
+    public static Routine Animate(World world) =>
         world.Routine(
             filter: world.FilterBuilder<Sprite2D, FlashCommand>(),
             callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
@@ -18,6 +23,6 @@ public class Flash
                 entity.Remove<FlashCommand>();
 
                 node.Modulate = new Color(flash.Color);
-                node.CreateTween().TweenProperty(node, "modulate", new Color(1, 1, 1), 1f);
+                node.CreateTween().TweenProperty(node, "modulate", new Color(1, 1, 1), 0.5f);
             });
 }

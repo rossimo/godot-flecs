@@ -148,7 +148,7 @@ public static class Interop
         });
     }
 
-    public static void NodeSystems(World world)
+    public static void Systems(World world)
     {
         var types = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -222,9 +222,8 @@ public static class Interop
     public static void Cleanup(this Entity entity)
     {
         var count = 0;
-        Ecs.EachIdCallback eachIdCallback = (id) => count++;
 
-        entity.Each(eachIdCallback);
+        entity.Each((id) => count++);
 
         if (count == 0)
         {

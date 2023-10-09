@@ -8,13 +8,14 @@ public partial class Game : Node2D
 	public override void _Ready()
 	{
 		world.Set(new Time());
-		Interop.NodeSystems(world);
 
-		Physics.TopLevel(world);
+		Physics.Observers(world);
+
+		Interop.Systems(world);
 		Input.Systems(world);
-		Flash.System(world);
-		Move.System(world);
-		Physics.Sync(world);
+		Flash.Systems(world);
+		Move.Systems(world);
+		Physics.Systems(world);
 
 		foreach (var node in GetChildren())
 		{
@@ -36,7 +37,7 @@ public partial class Game : Node2D
 	{
 		if (@event is InputEventMouseButton mouse)
 		{
-			world.Entity().Set(new MouseEvent
+			world.Set(new MouseEvent
 			{
 				mouse = mouse,
 				position = ToLocal(GetViewport().GetMousePosition())

@@ -27,19 +27,6 @@ public class Input
                     switch (@event.mouse.ButtonIndex)
                     {
                         case MouseButton.Right:
-                            {
-                                players.Each(player =>
-                                {
-                                    player.Remove<MoveCommand>();
-                                    if (player.Has<CharacterBody2D>())
-                                    {
-                                        ref var physics = ref player.GetMut<CharacterBody2D>();
-                                        physics.Position = Vector2.Zero;
-                                    }
-                                });
-                            }
-                            break;
-
                         case MouseButton.Left:
                             {
                                 var position = @event.position;
@@ -58,7 +45,6 @@ public class Input
                 }
 
                 entity.Remove<MouseEvent>();
-                entity.Cleanup();
             });
     }
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=14 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_osvj0"]
 [ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
+[ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="8_52gal"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
@@ -14,6 +15,9 @@ radius = 30.0
 
 [sub_resource type="Resource" id="Resource_b3tfd"]
 script = ExtResource("7_7ko2u")
+
+[sub_resource type="Resource" id="Resource_3rdpw"]
+script = ExtResource("8_52gal")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 30.0
@@ -44,13 +48,21 @@ shape = SubResource("CircleShape2D_fkvev")
 [node name="fire" type="Node2D" parent="."]
 position = Vector2(300, 300)
 
-[node name="CollisionTrigger" type="Node" parent="fire"]
+[node name="CollisionTriggerOther" type="Node" parent="fire"]
 script = ExtResource("5_si3dh")
 Target = SubResource("Resource_b3tfd")
 
-[node name="FlashCommand" type="Node" parent="fire/CollisionTrigger"]
+[node name="Red" type="Node" parent="fire/CollisionTriggerOther"]
 script = ExtResource("8_w26qf")
 Color = Color(1, 0, 0, 1)
+
+[node name="CollisionTriggerSelf" type="Node" parent="fire"]
+script = ExtResource("5_si3dh")
+Target = SubResource("Resource_3rdpw")
+
+[node name="Orange" type="Node" parent="fire/CollisionTriggerSelf"]
+script = ExtResource("8_w26qf")
+Color = Color(1, 0.454902, 0, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="fire"]
 scale = Vector2(4, 4)
