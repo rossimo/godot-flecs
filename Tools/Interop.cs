@@ -114,11 +114,6 @@ public static class Interop
 
     public static void Trigger<T>(this Entity entity, Entity other = default) where T : Trigger
     {
-        if (!entity.IsValid())
-        {
-            return;
-        }
-
         var typeName = typeof(T).Name;
         entity.Children((Entity triggerEntity) =>
         {
