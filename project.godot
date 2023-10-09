@@ -22,3 +22,7 @@ project/assembly_name="New Game Project"
 [physics]
 
 common/physics_ticks_per_second=30
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.0823529, 0.0823529, 0.0823529, 1)

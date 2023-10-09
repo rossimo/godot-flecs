@@ -33,19 +33,19 @@ public class Physics
 
     public static Routine Sync(World world) =>
         world.Routine(
-            filter: world.FilterBuilder<CharacterBody2D, Sprite2D>(),
-            callback: (Entity entity, ref CharacterBody2D physics, ref Sprite2D sprite) =>
+            filter: world.FilterBuilder().Term<CharacterBody2D>().Term<Node2D>(),
+            callback: (Entity entity, ref CharacterBody2D physics, ref Node2D node) =>
         {
-            if (!physics.Position.Equals(sprite.Position))
+            if (!physics.Position.Equals(node.Position))
             {
-                var target = physics.Position.DistanceTo(sprite.Position);
+                var target = physics.Position.DistanceTo(node.Position);
                 var speed = entity.Has<Speed>() ? entity.Get<Speed>().Value : 1;
                 var normal = speed * SPEED_SCALE;
 
                 var ratio = Math.Min(target / normal, 1);
 
-                var tween = sprite.CreateTween();
-                tween.TweenProperty(sprite, "position", physics.Position, TARGET_FRAMETIME * ratio);
+                var tween = node.CreateTween();
+                tween.TweenProperty(node, "position", physics.Position, TARGET_FRAMETIME * ratio);
             }
         });
 }
