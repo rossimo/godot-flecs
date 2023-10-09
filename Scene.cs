@@ -11,6 +11,7 @@ public partial class Scene : Node2D
 		Interop.NodeSystems(world);
 
 		Physics.TopLevel(world);
+		Input.Systems(world);
 		Flash.System(world);
 		Move.System(world);
 		Physics.Sync(world);
@@ -29,5 +30,17 @@ public partial class Scene : Node2D
 		time.Ticks++;
 
 		world.Progress();
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouse)
+		{
+			world.Entity().Set(new MouseEvent
+			{
+				mouse = mouse,
+				position = ToLocal(GetViewport().GetMousePosition())
+			});
+		}
 	}
 }

@@ -223,4 +223,17 @@ public static class Interop
                 }
             });
     }
+
+    public static void Cleanup(this Entity entity)
+    {
+        var count = 0;
+        Ecs.EachIdCallback eachIdCallback = (id) => count++;
+
+        entity.Each(eachIdCallback);
+
+        if (count == 0)
+        {
+            entity.Destruct();
+        }
+    }
 }
