@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-public partial class Scene : Node2D
+public partial class Game : Node2D
 {
 	private World world = World.Create();
 
