@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
 [ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_osvj0"]
 [ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
-[ext_resource type="Script" path="res://Components/TargetOther.cs" id="7_7ko2u"]
+[ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
