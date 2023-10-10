@@ -6,7 +6,7 @@ public static class Reflection
 {
     private static Dictionary<Type, MethodInfo> setComponentCache = new Dictionary<Type, MethodInfo>();
 
-    private static Dictionary<string, MethodInfo> getComponentCache = new Dictionary<string, MethodInfo>();
+    private static Dictionary<Type, MethodInfo> getComponentCache = new Dictionary<Type, MethodInfo>();
 
     private static Dictionary<Type, MethodInfo> removeComponentCache = new Dictionary<Type, MethodInfo>();
 
@@ -37,20 +37,30 @@ public static class Reflection
 
     public static object? ReflectionGet(this Entity entity, string typeName)
     {
+        var type = Assembly.GetExecutingAssembly().GetType(typeName);
+
+        if (type == null)
+        {
+            throw new Exception($"Unable to find type {typeName}");
+        }
+
+        return entity.ReflectionGet(type);
+    }
+
+    public static object? ReflectionGet(this Entity entity, Type type)
+    {
         MethodInfo? get = null;
 
-        if (getComponentCache.ContainsKey(typeName))
+        if (getComponentCache.ContainsKey(type))
         {
-            get = getComponentCache[typeName];
+            get = getComponentCache[type];
         }
 
         if (get == null)
         {
-            var type = Assembly.GetExecutingAssembly().GetType(typeName);
-            if (type == null) throw new Exception($"Type {typeName} not found");
 
             get = entityGetComponentdMethod.MakeGenericMethod(new Type[] { type });
-            getComponentCache.Add(typeName, get);
+            getComponentCache.Add(type, get);
         }
 
         return get.Invoke(entity, Array.Empty<object>());

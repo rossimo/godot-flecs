@@ -115,6 +115,8 @@ public static class Interop
     public static void Trigger<T>(this Entity entity, Entity other = default) where T : Trigger
     {
         var typeName = typeof(T).Name;
+        var componentType = entity.CsWorld().Component<T>();
+
         entity.Children((Entity triggerEntity) =>
         {
             if (triggerEntity.Has<T>())
@@ -123,16 +125,18 @@ public static class Interop
                 var target = triggerComponent.Target;
                 triggerEntity.Each((Id id) =>
                 {
-                    var name = id.ToString();
-                    if (id.IsEntity() && name != typeName)
+                    if (id.IsEntity() && id.TypeId() != componentType.Id.Value)
                     {
-                        var component = triggerEntity.ReflectionGet(name);
+                        var symbol = id.Entity().Symbol();
+                        var component = triggerEntity.ReflectionGet(symbol);
                         var clone = component is Node node
                             ? node.Duplicate()
                             : component;
 
                         if (clone == null)
-                            throw new Exception($"Unable to create {name}");
+                        {
+                            throw new Exception($"Unable to create {symbol}");
+                        }
 
                         if (target is TargetSelf)
                         {
