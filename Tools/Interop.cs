@@ -168,6 +168,39 @@ public static class Interop
                 .MakeGenericMethod(new Type[] { type })
                 .Invoke(null, new object?[] { world });
         }
+
+        var scriptTypes = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(type => type.IsAssignableTo(typeof(Script)));
+
+        foreach (var type in scriptTypes)
+        {
+            scriptNodeSystemMethod
+                .MakeGenericMethod(new Type[] { type })
+                .Invoke(null, new object?[] { world });
+        }
+    }
+
+    private static MethodInfo scriptNodeSystemMethod = typeof(Interop)
+        .GetMethods()
+        .First(m => m.ToString() == "Void ScriptNodeSystem[T](Flecs.NET.Core.World)");
+
+    public static void ScriptNodeSystem<T>(this World world) where T : Script
+    {
+        world.Observer(
+            filter: world.FilterBuilder<T>(),
+            observer: world.ObserverBuilder().Event(Ecs.OnSet),
+            callback: (Entity entity, ref T component) =>
+            {
+                _ = component.Run(entity).ContinueWith(task =>
+                {
+                    entity.Remove<T>();
+                    if (task.Exception != null)
+                    {
+                        GD.PrintErr(task.Exception);
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            });
     }
 
     private static MethodInfo removeNodeSystemMethod = typeof(Interop)

@@ -1,28 +1,60 @@
+using Godot;
 using Flecs.NET.Core;
-using System.Reflection;
 
-public static class Script
+public interface Script
 {
-    public static void OnSet(World world)
-    {
-        world.Observer(
-            filter: world.FilterBuilder().Term(Ecs.Wildcard),
-            observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Iter iter) =>
-            {
-                var id = iter.Id(1);
-                var symbol = id.TypeId().Symbol();
+    Task Run(Entity entity);
+}
 
-                if (id.IsEntity())
+public static class ScriptUtils
+{
+    public static Task<T> OnSetAsync<T>(this Entity entity)
+    {
+        var world = entity.CsWorld();
+
+        var promise = new TaskCompletionSource<T>();
+
+        var observer = world.Observer(
+            filter: world.FilterBuilder().Term<T>(),
+            observer: world.ObserverBuilder().Event(Ecs.OnSet),
+            callback: (Entity possible, ref T component) =>
+            {
+                if (possible.Id.Value == entity.Id.Value && !promise.Task.IsCompleted)
                 {
-                    foreach (var i in iter)
-                    {
-                        var entity = iter.Entity(i);
-                        var type = Assembly.GetExecutingAssembly().GetType(symbol);
-                        Console.WriteLine($"+ {entity} {entity.Symbol()}");
-                    }
+                    promise.SetResult(component);
                 }
             }
         );
+
+        return promise.Task.ContinueWith((task) =>
+        {
+            observer.Destruct();
+            return task.Result;
+        }, TaskScheduler.FromCurrentSynchronizationContext());
+    }
+
+    public static Task<T> OnRemoveAsync<T>(this Entity entity)
+    {
+        var world = entity.CsWorld();
+
+        var promise = new TaskCompletionSource<T>();
+
+        var observer = world.Observer(
+            filter: world.FilterBuilder().Term<T>(),
+            observer: world.ObserverBuilder().Event(Ecs.OnRemove),
+            callback: (Entity possible, ref T component) =>
+            {
+                if (possible.Id.Value == entity.Id.Value && !promise.Task.IsCompleted)
+                {
+                    promise.SetResult(component);
+                }
+            }
+        );
+
+        return promise.Task.ContinueWith((task) =>
+        {
+            observer.Destruct();
+            return task.Result;
+        }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 }
