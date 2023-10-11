@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=16 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
 [ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="8_52gal"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
+[ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="9_5hvp6"]
 [ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="10_v3gt5"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
@@ -17,11 +18,11 @@ radius = 30.0
 [sub_resource type="Resource" id="Resource_b3tfd"]
 script = ExtResource("7_7ko2u")
 
-[sub_resource type="Resource" id="Resource_3rdpw"]
-script = ExtResource("8_52gal")
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 30.0
+
+[sub_resource type="Resource" id="Resource_3rdpw"]
+script = ExtResource("8_52gal")
 
 [node name="scene" type="Node2D"]
 texture_filter = 1
@@ -46,11 +47,35 @@ texture = ExtResource("2_bxnyh")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="player/CharacterBody2D"]
 shape = SubResource("CircleShape2D_fkvev")
 
-[node name="fire" type="Node2D" parent="."]
+[node name="spider" type="Node2D" parent="."]
 position = Vector2(200, 200)
 
-[node name="MoveScript" type="Node" parent="fire"]
+[node name="MoveScript" type="Node" parent="spider"]
 script = ExtResource("10_v3gt5")
+
+[node name="Speed" type="Node" parent="spider"]
+script = ExtResource("5_m55ya")
+Value = 2.0
+
+[node name="CollisionTriggerOther" type="Node" parent="spider"]
+script = ExtResource("5_si3dh")
+Target = SubResource("Resource_b3tfd")
+
+[node name="Red" type="Node" parent="spider/CollisionTriggerOther"]
+script = ExtResource("8_w26qf")
+Color = Color(1, 0, 0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="spider"]
+scale = Vector2(4, 4)
+texture = ExtResource("9_5hvp6")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="spider"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="spider/CharacterBody2D"]
+shape = SubResource("CircleShape2D_wr2re")
+
+[node name="fire" type="Node2D" parent="."]
+position = Vector2(300, 300)
 
 [node name="CollisionTriggerOther" type="Node" parent="fire"]
 script = ExtResource("5_si3dh")
@@ -76,7 +101,3 @@ texture = ExtResource("5_osvj0")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="fire/CharacterBody2D"]
 shape = SubResource("CircleShape2D_wr2re")
-
-[node name="Speed" type="Node" parent="fire"]
-script = ExtResource("5_m55ya")
-Value = 1.0
