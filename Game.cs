@@ -7,11 +7,12 @@ public partial class Game : Node2D
 
 	public override void _Ready()
 	{
+		Interop.Systems(world);
+
 		world.Set(new Time());
 
 		Physics.Observers(world);
 
-		Interop.Systems(world);
 		Input.Systems(world);
 		Flash.Systems(world);
 		Move.Systems(world);

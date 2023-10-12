@@ -154,31 +154,31 @@ public static class Interop
 
     public static void Systems(World world)
     {
-        var types = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(type => type.IsSubclassOf(typeof(Node)));
+        world.Observer(
+            filter: world.FilterBuilder().Term(1),
+            observer: world.ObserverBuilder().Event(Ecs.OnSet),
+            callback: (Entity entity) =>
+            {
+                var type = TypeByName(entity.Symbol());
+                
+                if (type.IsSubclassOf(typeof(Node)))
+                {
+                    removeNodeSystemMethod
+                        .MakeGenericMethod(new Type[] { type })
+                        .Invoke(null, new object?[] { world });
 
-        foreach (var type in types)
-        {
-            removeNodeSystemMethod
-                .MakeGenericMethod(new Type[] { type })
-                .Invoke(null, new object?[] { world });
+                    setNodeSystemMethod
+                        .MakeGenericMethod(new Type[] { type })
+                        .Invoke(null, new object?[] { world });
+                }
 
-            setNodeSystemMethod
-                .MakeGenericMethod(new Type[] { type })
-                .Invoke(null, new object?[] { world });
-        }
-
-        var scriptTypes = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(type => type.IsAssignableTo(typeof(Script)));
-
-        foreach (var type in scriptTypes)
-        {
-            scriptNodeSystemMethod
-                .MakeGenericMethod(new Type[] { type })
-                .Invoke(null, new object?[] { world });
-        }
+                if (type.IsAssignableTo(typeof(Script)))
+                {
+                    scriptNodeSystemMethod
+                        .MakeGenericMethod(new Type[] { type })
+                        .Invoke(null, new object?[] { world });
+                }
+            });
     }
 
     private static MethodInfo scriptNodeSystemMethod = typeof(Interop)
@@ -266,5 +266,19 @@ public static class Interop
         {
             entity.Destruct();
         }
+    }
+
+    public static Type TypeByName(string name)
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Reverse())
+        {
+            var type = assembly.GetType(name);
+            if (type != null)
+            {
+                return type;
+            }
+        }
+
+        return null;
     }
 }
