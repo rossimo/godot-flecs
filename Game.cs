@@ -17,6 +17,7 @@ public partial class Game : Node2D
 		Flash.Systems(world);
 		Move.Systems(world);
 		Physics.Systems(world);
+		Delete.Systems(world);
 
 		foreach (var node in GetChildren())
 		{

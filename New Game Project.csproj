@@ -7,6 +7,6 @@
     <RootNamespace>NewGameProject</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Flecs.NET.Debug" Version="3.2.7-build.11" />
+    <PackageReference Include="Flecs.NET.Debug" Version="3.2.8" />
   </ItemGroup>
 </Project>
