@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=22 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
 [ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_osvj0"]
 [ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
+[ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="6_y11y0"]
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
 [ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="8_52gal"]
 [ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_i5muf"]
@@ -20,10 +21,10 @@ radius = 30.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_x0uo1"]
 radius = 15.0
 
-[sub_resource type="Resource" id="Resource_wnpm7"]
+[sub_resource type="Resource" id="Resource_fbnpn"]
 script = ExtResource("8_52gal")
 
-[sub_resource type="Resource" id="Resource_y8q4o"]
+[sub_resource type="Resource" id="Resource_g5khf"]
 script = ExtResource("7_7ko2u")
 
 [sub_resource type="Resource" id="Resource_b3tfd"]
@@ -53,9 +54,14 @@ Value = 4.0
 scale = Vector2(4, 4)
 texture = ExtResource("2_bxnyh")
 
+[node name="Area2D" type="Area2D" parent="player"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player/Area2D"]
+shape = SubResource("CircleShape2D_fkvev")
+
 [node name="CharacterBody2D" type="CharacterBody2D" parent="player"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="player/CharacterBody2D"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="player/CharacterBody2D"]
 shape = SubResource("CircleShape2D_fkvev")
 
 [node name="potion" type="Node2D" parent="."]
@@ -65,23 +71,23 @@ position = Vector2(416, 133)
 scale = Vector2(2, 2)
 texture = ExtResource("5_0mrji")
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="potion"]
+[node name="Area2D" type="Area2D" parent="potion"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="potion/CharacterBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="potion/Area2D"]
 shape = SubResource("CircleShape2D_x0uo1")
 
-[node name="CollisionTriggerSelf" type="Node" parent="potion"]
-script = ExtResource("5_si3dh")
-Target = SubResource("Resource_wnpm7")
+[node name="AreaTriggerSelf" type="Node" parent="potion"]
+script = ExtResource("6_y11y0")
+Target = SubResource("Resource_fbnpn")
 
-[node name="DeleteCommand" type="Node" parent="potion/CollisionTriggerSelf"]
+[node name="DeleteCommand" type="Node" parent="potion/AreaTriggerSelf"]
 script = ExtResource("8_i5muf")
 
-[node name="CollisionTriggerOther" type="Node" parent="potion"]
-script = ExtResource("5_si3dh")
-Target = SubResource("Resource_y8q4o")
+[node name="AreaTriggerOther" type="Node" parent="potion"]
+script = ExtResource("6_y11y0")
+Target = SubResource("Resource_g5khf")
 
-[node name="FlashCommand" type="Node" parent="potion/CollisionTriggerOther"]
+[node name="FlashCommand" type="Node" parent="potion/AreaTriggerOther"]
 script = ExtResource("8_w26qf")
 Color = Color(0, 1, 0, 1)
 

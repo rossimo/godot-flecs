@@ -161,7 +161,8 @@ public static class Interop
             callback: (Entity entity) =>
             {
                 var type = TypeByName(entity.Symbol());
-                
+                if (type == null) return;
+
                 if (type.IsSubclassOf(typeof(Node)))
                 {
                     removeNodeSystemMethod
@@ -269,7 +270,7 @@ public static class Interop
         }
     }
 
-    public static Type TypeByName(string name)
+    public static Type? TypeByName(string name)
     {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Reverse())
         {

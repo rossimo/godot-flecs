@@ -19,6 +19,8 @@ public partial class Game : Node2D
 		Physics.Systems(world);
 		Delete.Systems(world);
 
+		world.Set(this);
+
 		foreach (var node in GetChildren())
 		{
 			node.CreateEntity(world);

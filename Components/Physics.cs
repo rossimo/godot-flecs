@@ -23,6 +23,7 @@ public class Physics
 	public static IEnumerable<Observer> Observers(World world) =>
 		new[] {
 			TopLevel(world),
+			Area(world)
 		};
 
 	public static IEnumerable<Routine> Systems(World world) =>
@@ -39,6 +40,27 @@ public class Physics
 				var globalPosition = node.GlobalPosition;
 				node.TopLevel = true;
 				node.GlobalPosition = globalPosition;
+			});
+
+	public static Observer Area(World world) =>
+		world.Observer(
+			filter: world.FilterBuilder<Area2D>(),
+			observer: world.ObserverBuilder().Event(Ecs.OnSet),
+			callback: (Entity entity, ref Area2D node) =>
+			{
+				var game = world.Get<Game>();
+
+				node.AreaEntered += (Area2D otherNode) =>
+				{
+					var other = otherNode.FindEntity(world);
+
+					entity.Trigger<AreaTrigger>(other);
+
+					if (other.IsValid())
+					{
+						other.Trigger<AreaTrigger>(entity);
+					}
+				};
 			});
 
 	public static Routine Sync(World world) =>
