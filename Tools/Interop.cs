@@ -1,6 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 using System.Reflection;
+using Flecs.NET.Bindings;
 
 struct Parent { }
 
@@ -155,7 +156,7 @@ public static class Interop
     public static void Systems(World world)
     {
         world.Observer(
-            filter: world.FilterBuilder().Term(1),
+            filter: world.FilterBuilder().Term<Native.EcsComponent>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity) =>
             {
