@@ -12,7 +12,6 @@ public static class Interop
         if (!entity.IsValid())
         {
             var name = node.GetPath();
-            GD.Print($"Creating {name}");
             entity = world.Entity(name);
 
             entity.ReflectionSet(node);
@@ -26,7 +25,6 @@ public static class Interop
         {
             if (entity.IsValid() && node.HasComponent())
             {
-                GD.Print($"Setting {node.GetType()} to {entity}");
                 entity.ReflectionSet(node);
             }
         };
@@ -36,12 +34,10 @@ public static class Interop
             if (child.HasMany())
             {
                 var childEntity = child.CreateEntity(world);
-                GD.Print($"Adding child {childEntity} to {entity}");
                 childEntity.ChildOf(entity);
             }
             else
             {
-                GD.Print($"Setting {child.GetType()} to {entity}");
                 entity.ReflectionSet(child);
             }
 
@@ -201,7 +197,7 @@ public static class Interop
                         entity.Remove<T>();
                     }
 
-                    if (task.Exception != null && ((task.Exception as Exception) is not EntityDeadException))
+                    if (task.Exception != null && (task.Exception.InnerException is not EntityDeadException))
                     {
                         GD.PrintErr(task.Exception);
                     }
@@ -220,7 +216,6 @@ public static class Interop
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (Entity entity, ref T component) =>
             {
-                GD.Print($"Removed {component.GetType()} from {entity}");
                 if (GDScript.IsInstanceValid(component))
                 {
                     component.QueueFree();
