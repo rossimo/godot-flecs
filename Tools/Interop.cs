@@ -196,8 +196,12 @@ public static class Interop
             {
                 _ = component.Run(entity).ContinueWith(task =>
                 {
-                    entity.Remove<T>();
-                    if (task.Exception != null)
+                    if (entity.IsAlive())
+                    {
+                        entity.Remove<T>();
+                    }
+
+                    if (task.Exception != null && ((task.Exception as Exception) is not EntityDeadException))
                     {
                         GD.PrintErr(task.Exception);
                     }

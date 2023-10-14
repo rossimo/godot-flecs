@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=23 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
 [ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="9_5hvp6"]
 [ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="10_v3gt5"]
+[ext_resource type="Script" path="res://Scripts/FlashScript.cs" id="11_32vox"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 30.0
@@ -90,6 +91,9 @@ Target = SubResource("Resource_g5khf")
 [node name="FlashCommand" type="Node" parent="potion/AreaTriggerOther"]
 script = ExtResource("8_w26qf")
 Color = Color(0, 1, 0, 1)
+
+[node name="FlashScript" type="Node" parent="potion"]
+script = ExtResource("11_32vox")
 
 [node name="spider" type="Node2D" parent="."]
 position = Vector2(200, 200)

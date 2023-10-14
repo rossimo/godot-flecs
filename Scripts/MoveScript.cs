@@ -8,16 +8,16 @@ public partial class MoveScript : Node, Script
 	{
 		while (true)
 		{
-			entity.Set(new MoveCommand { X = 200, Y = 200 });
+			entity.SetAsync(new MoveCommand { X = 200, Y = 200 });
 			await entity.OnRemoveAsync<MoveCommand>();
 
-			entity.Set(new MoveCommand { X = 400, Y = 200 });
+			entity.SetAsync(new MoveCommand { X = 400, Y = 200 });
 			await entity.OnRemoveAsync<MoveCommand>();
 
-			entity.Set(new MoveCommand { X = 400, Y = 400 });
+			entity.SetAsync(new MoveCommand { X = 400, Y = 400 });
 			await entity.OnRemoveAsync<MoveCommand>();
 
-			entity.Set(new MoveCommand { X = 200, Y = 400 });
+			entity.SetAsync(new MoveCommand { X = 200, Y = 400 });
 			await entity.OnRemoveAsync<MoveCommand>();
 		}
 	}
