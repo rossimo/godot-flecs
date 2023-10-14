@@ -197,7 +197,7 @@ public static class Interop
                         entity.Remove<T>();
                     }
 
-                    if (task.Exception != null && (task.Exception.InnerException is not EntityDeadException))
+                    if (task.Exception != null && (task.Exception.InnerException is not DeadEntityException))
                     {
                         GD.PrintErr(task.Exception);
                     }

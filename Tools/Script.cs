@@ -18,11 +18,11 @@ public static class ScriptUtils
         var promise = new TaskCompletionSource<T>();
 
         var observer = world.Observer(
-            filter: world.FilterBuilder().Term<T>(),
+            filter: world.FilterBuilder().Term<T>().Entity(entity),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity possible, ref T component) =>
             {
-                if (possible.Id.Value == entity.Id.Value && !promise.Task.IsCompleted)
+                if (!promise.Task.IsCompleted)
                 {
                     promise.SetResult(component);
                 }
@@ -45,11 +45,11 @@ public static class ScriptUtils
         var promise = new TaskCompletionSource<T>();
 
         var observer = world.Observer(
-            filter: world.FilterBuilder().Term<T>(),
+            filter: world.FilterBuilder().Term<T>().Entity(entity),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
             callback: (Entity possible, ref T component) =>
             {
-                if (possible.Id.Value == entity.Id.Value && !promise.Task.IsCompleted)
+                if (!promise.Task.IsCompleted)
                 {
                     promise.SetResult(component);
                 }
@@ -74,14 +74,14 @@ public static class ScriptUtils
     {
         if (!entity.IsAlive())
         {
-            throw new EntityDeadException(entity);
+            throw new DeadEntityException(entity);
         }
     }
 }
 
-public class EntityDeadException : Exception
+public class DeadEntityException : Exception
 {
-    public EntityDeadException(Entity entity) : base($"Entity is not alive")
+    public DeadEntityException(Entity entity) : base($"Entity is not alive")
     {
     }
 }
