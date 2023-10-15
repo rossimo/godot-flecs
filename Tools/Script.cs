@@ -1,20 +1,12 @@
 using Godot;
 using Flecs.NET.Core;
-using Flecs.NET.Bindings;
-using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
 
-public interface Script
+[GlobalClass, Icon("res://resources/tools/script.png"), Component]
+public abstract partial class Script : Node
 {
-    Task Run(Entity entity);
+    public abstract Task Run(Entity entity);
 
-    void OnRemove(Entity entity);
-}
-
-public static class ScriptUtils
-{
-    public static Task<T> OnSetAsync<S, T>(this Entity entity, Script script) where S : Script
+    public Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
     {
         entity.AssertAlive();
 
@@ -34,17 +26,20 @@ public static class ScriptUtils
             }
         );
 
-        var scriptObserver = entity.ScriptObserver<S, T>(promise);
+        var scriptObserver = ScriptObserver<S, T>(entity, promise);
 
         return promise.Task.ContinueWith((task) =>
         {
             componentObserver.Destruct();
             scriptObserver.Destruct();
+
+            task.Exception?.Handle(ex => throw ex);
+
             return task.Result;
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
-    public static Task<T> OnRemoveAsync<S, T>(this Entity entity) where S : Script
+    public Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
     {
         entity.AssertAlive();
 
@@ -64,44 +59,53 @@ public static class ScriptUtils
             }
         );
 
-        var scriptObserver = entity.ScriptObserver<S, T>(promise);
+        var scriptObserver = ScriptObserver<S, T>(entity, promise);
 
         return promise.Task.ContinueWith((task) =>
         {
             componentObserver.Destruct();
             scriptObserver.Destruct();
+
+            task.Exception?.Handle(ex => throw ex);
+
             return task.Result;
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
-    static Observer ScriptObserver<S, T>(this Entity entity, TaskCompletionSource<T> promise) where S : Script
+    Observer ScriptObserver<S, T>(Entity entity, TaskCompletionSource<T> promise) where S : Script
     {
         var world = entity.CsWorld();
 
         return world.Observer(
             filter: world.FilterBuilder().Term<S>().Entity(entity),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
-            callback: (ref S script) =>
+            callback: (Iter it) =>
             {
                 if (!promise.Task.IsCompleted)
                 {
-                    if (entity.IsValid() && entity.IsAlive())
-                    {
-                        script.OnRemove(entity);
-                    }
                     promise.SetException(new ScriptRemovedException(entity));
                 }
             }
         );
     }
 
-    public static void SetAsync<T>(this Entity entity, T component)
+    public void SetAsync<T>(Entity entity, T component)
     {
         entity.AssertAlive();
 
         entity.Set(component);
     }
 
+    public void RemoveAsync<T>(Entity entity)
+    {
+        entity.AssertAlive();
+
+        entity.Remove<T>();
+    }
+}
+
+public static class ScriptUtils
+{
     public static void AssertAlive(this Entity entity)
     {
         if (!entity.IsAlive())
