@@ -24,10 +24,23 @@ public class Move
             {
                 var scale = world.Get<Time>().Scale;
 
-                var direction = physics.Position
-                    .DirectionTo(new Vector2(move.X, move.Y))
-                    .Normalized();
+                Vector2 direction;
+                if (entity.Has<NavigationAgent2D>())
+                {
+                    var navigationAgent = entity.Get<NavigationAgent2D>();
+                    navigationAgent.TargetPosition = new Vector2(move.X, move.Y);
 
+                    direction = physics.Position
+                        .DirectionTo(navigationAgent.GetNextPathPosition())
+                        .Normalized();
+                }
+                else
+                {
+                    direction = physics.Position
+                        .DirectionTo(new Vector2(move.X, move.Y))
+                        .Normalized();
+                }
+                
                 var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
                 var remaining = physics.Position.DistanceTo(new Vector2(move.X, move.Y));
