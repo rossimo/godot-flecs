@@ -8,7 +8,7 @@ public abstract partial class Script : Node
 
     public Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
     {
-        entity.AssertAlive();
+        AssertAlive(entity);
 
         var world = entity.CsWorld();
 
@@ -41,7 +41,7 @@ public abstract partial class Script : Node
 
     public Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
     {
-        entity.AssertAlive();
+        AssertAlive(entity);
 
         var world = entity.CsWorld();
 
@@ -91,22 +91,19 @@ public abstract partial class Script : Node
 
     public void SetAsync<T>(Entity entity, T component)
     {
-        entity.AssertAlive();
+        AssertAlive(entity);
 
         entity.Set(component);
     }
 
     public void RemoveAsync<T>(Entity entity)
     {
-        entity.AssertAlive();
+        AssertAlive(entity);
 
         entity.Remove<T>();
     }
-}
 
-public static class ScriptUtils
-{
-    public static void AssertAlive(this Entity entity)
+    void AssertAlive(Entity entity)
     {
         if (!entity.IsAlive())
         {
