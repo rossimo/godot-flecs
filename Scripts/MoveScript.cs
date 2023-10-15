@@ -9,16 +9,21 @@ public partial class MoveScript : Node, Script
 		while (true)
 		{
 			entity.SetAsync(new MoveCommand { X = 200, Y = 200 });
-			await entity.OnRemoveAsync<MoveCommand>();
+			await entity.OnRemoveAsync<MoveScript, MoveCommand>();
 
 			entity.SetAsync(new MoveCommand { X = 400, Y = 200 });
-			await entity.OnRemoveAsync<MoveCommand>();
+			await entity.OnRemoveAsync<MoveScript, MoveCommand>();
 
 			entity.SetAsync(new MoveCommand { X = 400, Y = 400 });
-			await entity.OnRemoveAsync<MoveCommand>();
+			await entity.OnRemoveAsync<MoveScript, MoveCommand>();
 
 			entity.SetAsync(new MoveCommand { X = 200, Y = 400 });
-			await entity.OnRemoveAsync<MoveCommand>();
+			await entity.OnRemoveAsync<MoveScript, MoveCommand>();
 		}
+	}
+
+	public void OnRemove(Entity entity)
+	{
+		entity.Remove<MoveCommand>();
 	}
 }

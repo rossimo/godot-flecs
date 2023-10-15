@@ -197,9 +197,12 @@ public static class Interop
                         entity.Remove<T>();
                     }
 
-                    if (task.Exception != null && (task.Exception.InnerException is not DeadEntityException))
+                    var exception = task.Exception?.Flatten();
+                    if (exception != null &&
+                        (exception.InnerException is not DeadEntityException) &&
+                        (exception.InnerException is not ScriptRemovedException))
                     {
-                        GD.PrintErr(task.Exception);
+                        GD.PrintErr(exception);
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             });

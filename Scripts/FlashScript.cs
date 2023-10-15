@@ -4,7 +4,7 @@ using Flecs.NET.Core;
 [GlobalClass, Icon("res://resources/tools/script.png"), Component]
 public partial class FlashScript : Node, Script
 {
-	public async Task Run(Entity entity)
+    public async Task Run(Entity entity)
 	{
 		while (true)
 		{
@@ -18,4 +18,8 @@ public partial class FlashScript : Node, Script
 			await Task.Delay(1000);
 		}
 	}
+	
+	public void OnRemove(Entity entity)
+    {
+    }
 }
