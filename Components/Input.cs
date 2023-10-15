@@ -35,8 +35,7 @@ public class Input
                                 {
                                     player.Set(new MoveCommand
                                     {
-                                        X = position.X,
-                                        Y = position.Y
+                                        Position = position
                                     });
                                 });
                             }

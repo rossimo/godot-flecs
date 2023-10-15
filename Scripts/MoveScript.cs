@@ -10,16 +10,16 @@ public partial class MoveScript : Script
 		{
 			while (true)
 			{
-				SetAsync(entity, new MoveCommand { X = 200, Y = 200 });
+				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 200, Y = 200 } });
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { X = 400, Y = 200 });
+				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 400, Y = 200 } });
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { X = 400, Y = 400 });
+				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 400, Y = 400 } });
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { X = 200, Y = 400 });
+				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 200, Y = 400 } });
 				await OnRemoveAsync<MoveCommand>(entity);
 			}
 		}

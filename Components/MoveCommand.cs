@@ -5,9 +5,7 @@ using Flecs.NET.Core;
 public partial class MoveCommand : Node
 {
     [Export]
-    public float X { get; set; }
-    [Export]
-    public float Y { get; set; }
+    public Vector2 Position;
 }
 
 public class Move
@@ -28,7 +26,7 @@ public class Move
                 if (entity.Has<NavigationAgent2D>())
                 {
                     var navigationAgent = entity.Get<NavigationAgent2D>();
-                    navigationAgent.TargetPosition = new Vector2(move.X, move.Y);
+                    navigationAgent.TargetPosition = move.Position;
 
                     direction = physics.Position
                         .DirectionTo(navigationAgent.GetNextPathPosition())
@@ -37,23 +35,23 @@ public class Move
                 else
                 {
                     direction = physics.Position
-                        .DirectionTo(new Vector2(move.X, move.Y))
+                        .DirectionTo(move.Position)
                         .Normalized();
                 }
                 
                 var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
-                var remaining = physics.Position.DistanceTo(new Vector2(move.X, move.Y));
+                var remaining = physics.Position.DistanceTo(move.Position);
                 var full = vector.DistanceTo(Vector2.Zero);
 
                 if (remaining < full)
                 {
-                    vector = new Vector2(move.X, move.Y) - physics.Position;
+                    vector = move.Position - physics.Position;
                 }
 
                 var collision = physics.MoveAndCollide(vector);
 
-                if ((physics.Position.X == move.X && physics.Position.Y == move.Y) ||
+                if (physics.Position.IsEqualApprox(move.Position) ||
                     collision != null)
                 {
                     entity.Remove<MoveCommand>();
