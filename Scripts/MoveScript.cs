@@ -10,25 +10,25 @@ public partial class MoveScript : Script
 		{
 			while (true)
 			{
-				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 200, Y = 200 } });
+				await entity.SetAsync(new MoveCommand { Position = new Vector2 { X = 200, Y = 200 } }, this);
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 400, Y = 200 } });
+				await entity.SetAsync(new MoveCommand { Position = new Vector2 { X = 400, Y = 200 } }, this);
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 400, Y = 400 } });
+				await entity.SetAsync(new MoveCommand { Position = new Vector2 { X = 400, Y = 400 } }, this);
 				await OnRemoveAsync<MoveCommand>(entity);
 
-				SetAsync(entity, new MoveCommand { Position = new Vector2 { X = 200, Y = 400 } });
+				await entity.SetAsync(new MoveCommand { Position = new Vector2 { X = 200, Y = 400 } }, this);
 				await OnRemoveAsync<MoveCommand>(entity);
 			}
 		}
 		catch (ScriptRemovedException)
 		{
-			RemoveAsync<MoveCommand>(entity);
+			await entity.RemoveAsync<MoveCommand>(this);
 		}
 	}
 
-	Task<T> OnRemoveAsync<T>(Entity entity) =>
-		OnRemoveAsync<MoveScript, T>(entity);
+	async Task<T> OnRemoveAsync<T>(Entity entity) =>
+		await OnRemoveAsync<MoveScript, T>(entity);
 }

@@ -6,14 +6,34 @@ public partial class MoveCommand : Node
 {
     [Export]
     public Vector2 Position;
+
+    [Export]
+    public float Radius = 0;
 }
 
 public class Move
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
+            MoveWithinRadius(world),
             MoveAndCollide(world),
         };
+
+    public static Routine MoveWithinRadius(World world) =>
+        world.Routine(
+            filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
+            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics) =>
+            {
+                if (move.Radius > 0)
+                {
+                    var distance = move.Position.DistanceTo(physics.Position);
+
+                    if (distance <= move.Radius)
+                    {
+                        entity.Remove<MoveCommand>();
+                    }
+                }
+            });
 
     public static Routine MoveAndCollide(World world) =>
         world.Routine(
@@ -38,7 +58,7 @@ public class Move
                         .DirectionTo(move.Position)
                         .Normalized();
                 }
-                
+
                 var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
                 var remaining = physics.Position.DistanceTo(move.Position);

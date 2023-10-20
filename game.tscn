@@ -7,14 +7,14 @@
 [ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
 [ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_osvj0"]
 [ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
-[ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="6_y11y0"]
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
 [ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="8_52gal"]
 [ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_i5muf"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
 [ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="9_5hvp6"]
-[ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="10_v3gt5"]
-[ext_resource type="Script" path="res://Scripts/FlashScript.cs" id="11_32vox"]
+[ext_resource type="Script" path="res://Components/InteractTrigger.cs" id="12_gaao4"]
+[ext_resource type="Script" path="res://Scripts/FlashScript.cs" id="12_gc2li"]
+[ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="15_ufeh5"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 30.0
@@ -22,11 +22,11 @@ radius = 30.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_x0uo1"]
 radius = 15.0
 
-[sub_resource type="Resource" id="Resource_fbnpn"]
-script = ExtResource("8_52gal")
-
-[sub_resource type="Resource" id="Resource_g5khf"]
+[sub_resource type="Resource" id="Resource_p627l"]
 script = ExtResource("7_7ko2u")
+
+[sub_resource type="Resource" id="Resource_16xei"]
+script = ExtResource("8_52gal")
 
 [sub_resource type="Resource" id="Resource_b3tfd"]
 script = ExtResource("7_7ko2u")
@@ -73,33 +73,47 @@ scale = Vector2(2, 2)
 texture = ExtResource("5_0mrji")
 
 [node name="Area2D" type="Area2D" parent="potion"]
+collision_layer = 2
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="potion/Area2D"]
 shape = SubResource("CircleShape2D_x0uo1")
 
-[node name="AreaTriggerSelf" type="Node" parent="potion"]
-script = ExtResource("6_y11y0")
-Target = SubResource("Resource_fbnpn")
+[node name="InteractTriggerOther" type="Node" parent="potion"]
+script = ExtResource("12_gaao4")
+Target = SubResource("Resource_p627l")
 
-[node name="DeleteCommand" type="Node" parent="potion/AreaTriggerSelf"]
+[node name="FlashCommand" type="Node" parent="potion/InteractTriggerOther"]
+script = ExtResource("8_w26qf")
+Color = Color(1, 0, 1, 1)
+
+[node name="InteractTriggerSelf" type="Node" parent="potion"]
+script = ExtResource("12_gaao4")
+Target = SubResource("Resource_16xei")
+
+[node name="DeleteCommand" type="Node" parent="potion/InteractTriggerSelf"]
 script = ExtResource("8_i5muf")
 
-[node name="AreaTriggerOther" type="Node" parent="potion"]
-script = ExtResource("6_y11y0")
-Target = SubResource("Resource_g5khf")
-
-[node name="FlashCommand" type="Node" parent="potion/AreaTriggerOther"]
-script = ExtResource("8_w26qf")
-Color = Color(0, 1, 0, 1)
+[node name="Button" type="Button" parent="potion"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true
 
 [node name="FlashScript" type="Node" parent="potion"]
-script = ExtResource("11_32vox")
+script = ExtResource("12_gc2li")
 
 [node name="spider" type="Node2D" parent="."]
 position = Vector2(200, 200)
-
-[node name="MoveScript" type="Node" parent="spider"]
-script = ExtResource("10_v3gt5")
 
 [node name="Speed" type="Node" parent="spider"]
 script = ExtResource("5_m55ya")
@@ -121,6 +135,9 @@ texture = ExtResource("9_5hvp6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="spider/CharacterBody2D"]
 shape = SubResource("CircleShape2D_wr2re")
+
+[node name="MoveScript" type="Node" parent="spider"]
+script = ExtResource("15_ufeh5")
 
 [node name="fire" type="Node2D" parent="."]
 position = Vector2(300, 300)

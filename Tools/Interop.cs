@@ -25,6 +25,11 @@ public static class Interop
         {
             if (entity.IsValid() && node.HasComponent())
             {
+                if (entity.ReflectionHas(node.GetType()))
+                {
+                    var existing = entity.ReflectionGet(node.GetType());
+                    if (existing == node) return;
+                }
                 entity.ReflectionSet(node);
             }
         };
@@ -139,7 +144,7 @@ public static class Interop
                         {
                             entity.ReflectionSet(clone);
                         }
-                        else if (target is TargetOther && other.IsValid())
+                        else if (target is TargetOther && other.IsValid() && other.IsAlive())
                         {
                             other.ReflectionSet(clone);
                         }
@@ -149,7 +154,7 @@ public static class Interop
         });
     }
 
-    public static void Systems(World world)
+    public static void Observers(World world)
     {
         world.Observer(
             filter: world.FilterBuilder().Term<Native.EcsComponent>(),
@@ -172,6 +177,10 @@ public static class Interop
 
                 if (type.IsAssignableTo(typeof(Script)))
                 {
+                    scriptNodeObserverMethod
+                        .MakeGenericMethod(new Type[] { type })
+                        .Invoke(null, new object?[] { world });
+
                     scriptNodeSystemMethod
                         .MakeGenericMethod(new Type[] { type })
                         .Invoke(null, new object?[] { world });
@@ -179,33 +188,76 @@ public static class Interop
             });
     }
 
-    private static MethodInfo scriptNodeSystemMethod = typeof(Interop)
+    private static MethodInfo scriptNodeObserverMethod = typeof(Interop)
         .GetMethods()
-        .First(m => m.ToString() == "Void ScriptNodeSystem[T](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void ScriptNodeObserver[S](Flecs.NET.Core.World)");
 
-    public static void ScriptNodeSystem<T>(this World world) where T : Script
+    public static void ScriptNodeObserver<S>(this World world) where S : Script
     {
         world.Observer(
-            filter: world.FilterBuilder<T>(),
+            filter: world.FilterBuilder<S>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Entity entity, ref T component) =>
+            callback: (Entity entity, ref S component) =>
             {
-                _ = component.Run(entity).ContinueWith(task =>
-                {
-                    if (entity.IsAlive())
-                    {
-                        entity.Remove<T>();
-                    }
-
-                    var exception = task.Exception?.Flatten();
-                    if (exception != null &&
-                        (exception.InnerException is not DeadEntityException) &&
-                        (exception.InnerException is not ScriptRemovedException))
-                    {
-                        GD.PrintErr(exception);
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                Task<S>(entity, component.Run(entity));
             });
+    }
+
+    private static MethodInfo scriptNodeSystemMethod = typeof(Interop)
+        .GetMethods()
+        .First(m => m.ToString() == "Void ScriptNodeSystem[S](Flecs.NET.Core.World)");
+
+    public struct ScriptIterator { }
+
+    public static void ScriptNodeSystem<S>(this World world) where S : Script
+    {
+        world.Add<ScriptIterator>();
+
+        var query = world.Query(filter: world.FilterBuilder().With<S>());
+
+        world.Routine(
+            filter: world.FilterBuilder<ScriptIterator>(),
+            routine: world.RoutineBuilder().NoReadonly(),
+            callback: (Entity entity) =>
+            {
+                List<S>? scripts = null;
+                query.Each((ref S script) =>
+                {
+                    if (scripts == null)
+                    {
+                        scripts = new List<S>();
+                    }
+                    scripts.Add(script);
+                });
+
+                if (scripts != null)
+                {
+                    world.DeferSuspend();
+                    foreach (var script in scripts) script.Iterate();
+                    world.DeferResume();
+                }
+            });
+    }
+
+    static async void Task<T>(Entity entity, Task task)
+    {
+        try
+        {
+            await task;
+
+            if (entity.IsAlive())
+            {
+                entity.Remove<T>();
+            }
+        }
+        catch (Exception exception)
+        {
+            if ((exception is not DeadEntityException) &&
+                (exception is not ScriptRemovedException))
+            {
+                GD.PrintErr(exception);
+            }
+        }
     }
 
     private static MethodInfo removeNodeSystemMethod = typeof(Interop)

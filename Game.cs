@@ -7,13 +7,15 @@ public partial class Game : Node2D
 
 	public override void _Ready()
 	{
-		Interop.Systems(world);
+		Interop.Observers(world);
 
 		world.Set(new Time());
 
 		Physics.Observers(world);
+		Interact.Observers(world);
 
 		Input.Systems(world);
+		Interact.Systems(world);
 		Flash.Systems(world);
 		Move.Systems(world);
 		Physics.Systems(world);
@@ -37,9 +39,9 @@ public partial class Game : Node2D
 		world.Progress();
 	}
 
-	public override void _Input(InputEvent @event)
+	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event is InputEventMouseButton mouse)
+		if (@event is InputEventMouseButton mouse && mouse.IsPressed())
 		{
 			world.Set(new MouseEvent
 			{

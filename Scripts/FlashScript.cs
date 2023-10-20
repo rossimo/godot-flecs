@@ -8,13 +8,13 @@ public partial class FlashScript : Script
 	{
 		while (true)
 		{
-			SetAsync(entity, new FlashCommand { Color = Colors.Red });
+			await SetAsync(entity, new FlashCommand { Color = Colors.Red });
 			await Task.Delay(1000);
 
-			SetAsync(entity, new FlashCommand { Color = Colors.Green });
+			await SetAsync(entity, new FlashCommand { Color = Colors.Green });
 			await Task.Delay(1000);
 
-			SetAsync(entity, new FlashCommand { Color = Colors.Blue });
+			await SetAsync(entity, new FlashCommand { Color = Colors.Blue });
 			await Task.Delay(1000);
 		}
 	}

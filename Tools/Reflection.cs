@@ -10,11 +10,15 @@ public static class Reflection
 
     private static Dictionary<Type, MethodInfo> removeComponentCache = new Dictionary<Type, MethodInfo>();
 
+    private static Dictionary<Type, MethodInfo> hasComponentCache = new Dictionary<Type, MethodInfo>();
+
     private static MethodInfo entitySetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Set[T](T)");
 
     private static MethodInfo entityGetComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "T& Get[T]()");
 
     private static MethodInfo entityRemoveComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Flecs.NET.Core.Entity& Remove[T]()");
+
+    private static MethodInfo entityHasComponentdMethod = typeof(Entity).GetMethods().First(m => m.ToString() == "Boolean Has[T]()");
 
     public static void ReflectionSet(this Entity entity, object component)
     {
@@ -82,5 +86,23 @@ public static class Reflection
         }
 
         remove.Invoke(entity, Array.Empty<object>());
+    }
+
+    public static bool ReflectionHas(this Entity entity, Type type)
+    {
+        MethodInfo? method = null;
+
+        if (hasComponentCache.ContainsKey(type))
+        {
+            method = hasComponentCache[type];
+        }
+
+        if (method == null)
+        {
+            method = entityHasComponentdMethod.MakeGenericMethod(new Type[] { type });
+            hasComponentCache.Add(type, method);
+        }
+
+        return (bool) method.Invoke(entity, Array.Empty<object>());
     }
 }

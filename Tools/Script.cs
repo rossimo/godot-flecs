@@ -1,16 +1,24 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/script.png"), Component]
-public abstract partial class Script : Node
+public partial class Script : Node
 {
-    public abstract Task Run(Entity entity);
+    public virtual Task Run(Entity entity)
+    {
+        return Task.CompletedTask;
+    }
 
-    public Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
+    private TaskCompletionSource? defer;
+
+    public async Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
     {
         AssertAlive(entity);
 
+        await IsImmediate(entity.CsWorld());
+
         var world = entity.CsWorld();
+
+        var deferred = entity.CsWorld().IsDeferred();
 
         var promise = new TaskCompletionSource<T>();
 
@@ -28,20 +36,22 @@ public abstract partial class Script : Node
 
         var scriptObserver = ScriptObserver<S, T>(entity, promise);
 
-        return promise.Task.ContinueWith((task) =>
+        try
+        {
+            return await promise.Task;
+        }
+        finally
         {
             componentObserver.Destruct();
             scriptObserver.Destruct();
-
-            task.Exception?.Handle(ex => throw ex);
-
-            return task.Result;
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+        };
     }
 
-    public Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
+    public async Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
     {
         AssertAlive(entity);
+
+        await IsImmediate(entity.CsWorld());
 
         var world = entity.CsWorld();
 
@@ -50,7 +60,7 @@ public abstract partial class Script : Node
         var componentObserver = world.Observer(
             filter: world.FilterBuilder().Term<T>().Entity(entity),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
-            callback: (Entity possible, ref T component) =>
+            callback: (ref T component) =>
             {
                 if (!promise.Task.IsCompleted)
                 {
@@ -61,15 +71,15 @@ public abstract partial class Script : Node
 
         var scriptObserver = ScriptObserver<S, T>(entity, promise);
 
-        return promise.Task.ContinueWith((task) =>
+        try
+        {
+            return await promise.Task;
+        }
+        finally
         {
             componentObserver.Destruct();
             scriptObserver.Destruct();
-
-            task.Exception?.Handle(ex => throw ex);
-
-            return task.Result;
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+        };
     }
 
     Observer ScriptObserver<S, T>(Entity entity, TaskCompletionSource<T> promise) where S : Script
@@ -89,18 +99,44 @@ public abstract partial class Script : Node
         );
     }
 
-    public void SetAsync<T>(Entity entity, T component)
+    public void Iterate()
     {
+        if (defer != null)
+        {
+            defer.SetResult();
+            defer = null;
+        }
+    }
+
+    public async Task SetAsync<T>(Entity entity, T component)
+    {
+        await IsImmediate(entity.CsWorld());
+
         AssertAlive(entity);
 
         entity.Set(component);
     }
 
-    public void RemoveAsync<T>(Entity entity)
+    public async Task RemoveAsync<T>(Entity entity)
     {
+        await IsImmediate(entity.CsWorld());
+
         AssertAlive(entity);
 
         entity.Remove<T>();
+    }
+
+    async Task IsImmediate(World world)
+    {
+        if (world.IsDeferred())
+        {
+            if (defer == null)
+            {
+                defer = new TaskCompletionSource();
+            }
+
+            await defer.Task;
+        }
     }
 
     void AssertAlive(Entity entity)
@@ -123,5 +159,18 @@ public class ScriptRemovedException : Exception
 {
     public ScriptRemovedException(Entity entity) : base($"Script has been removed")
     {
+    }
+}
+
+public static class ScriptUtils
+{
+    public static Task SetAsync<T>(this Entity entity, T component, Script script)
+    {
+        return script.SetAsync(entity, component);
+    }
+
+    public static Task RemoveAsync<T>(this Entity entity, Script script)
+    {
+        return script.RemoveAsync<T>(entity);
     }
 }
