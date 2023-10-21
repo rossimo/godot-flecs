@@ -12,14 +12,12 @@ public partial class Script : Node
 
     public async Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
     {
-        AssertAlive(entity);
+        entity.AssertAlive();
 
-        await IsImmediate(entity.CsWorld());
+        await OnImmediate(entity.CsWorld());
 
         var world = entity.CsWorld();
-
-        var deferred = entity.CsWorld().IsDeferred();
-
+        
         var promise = new TaskCompletionSource<T>();
 
         var componentObserver = world.Observer(
@@ -49,9 +47,9 @@ public partial class Script : Node
 
     public async Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
     {
-        AssertAlive(entity);
+        entity.AssertAlive();
 
-        await IsImmediate(entity.CsWorld());
+        await OnImmediate(entity.CsWorld());
 
         var world = entity.CsWorld();
 
@@ -110,23 +108,23 @@ public partial class Script : Node
 
     public async Task SetAsync<T>(Entity entity, T component)
     {
-        await IsImmediate(entity.CsWorld());
+        await OnImmediate(entity.CsWorld());
 
-        AssertAlive(entity);
+        entity.AssertAlive();
 
         entity.Set(component);
     }
 
     public async Task RemoveAsync<T>(Entity entity)
     {
-        await IsImmediate(entity.CsWorld());
+        await OnImmediate(entity.CsWorld());
 
-        AssertAlive(entity);
+        entity.AssertAlive();
 
         entity.Remove<T>();
     }
 
-    async Task IsImmediate(World world)
+    public async Task OnImmediate(World world)
     {
         if (world.IsDeferred())
         {
@@ -136,14 +134,6 @@ public partial class Script : Node
             }
 
             await defer.Task;
-        }
-    }
-
-    void AssertAlive(Entity entity)
-    {
-        if (!entity.IsAlive())
-        {
-            throw new DeadEntityException(entity);
         }
     }
 }
@@ -184,10 +174,15 @@ public static class ScriptUtils
         return script.OnRemoveAsync<S, T>(entity);
     }
 
-    public static async Task WatchAsync<S, T>(this Entity entity, S script, T component) where S : Script
+    public static async Task OnChangeAsync<S, T>(this Entity entity, S script, T component) where S : Script
     {
         await entity.SetAsync(script, component);
 
+        await entity.OnChangeAsync<S, T>(script);
+    }
+
+    public static async Task OnChangeAsync<S, T>(this Entity entity, S script) where S : Script
+    {
         var set = script.OnSetAsync<S, T>(entity);
         var remove = script.OnRemoveAsync<S, T>(entity);
 

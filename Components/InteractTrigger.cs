@@ -18,15 +18,18 @@ public class Interact
             System(world),
         };
 
-    public static Observer Setup(World world) =>
-        world.Observer(
+    public static Observer Setup(World world)
+    {
+        var playerQuery = world.Query(filter: world.FilterBuilder().Term<Player>());
+
+        return world.Observer(
             filter: world.FilterBuilder<Button>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref Button button) =>
             {
                 button.Pressed += () =>
                 {
-                    var player = world.Query(filter: world.FilterBuilder().Term<Player>()).Find((ref Player player) => true);
+                    var player = playerQuery.Iter().First();
 
                     player.Set(new MoveAndInteractScript()
                     {
@@ -35,6 +38,8 @@ public class Interact
                     });
                 };
             });
+
+    }
 
     public static Routine System(World world) =>
         world.Routine(

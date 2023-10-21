@@ -15,11 +15,11 @@ public class Move
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
-            MoveWithinRadius(world),
+            MoveWithinRange(world),
             MoveAndCollide(world),
         };
 
-    public static Routine MoveWithinRadius(World world) =>
+    public static Routine MoveWithinRange(World world) =>
         world.Routine(
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics) =>

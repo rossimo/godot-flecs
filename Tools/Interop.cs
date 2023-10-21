@@ -199,7 +199,7 @@ public static class Interop
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
             callback: (Entity entity, ref S component) =>
             {
-                Task<S>(entity, component.Run(entity));
+                Task<S>(entity, component);
             });
     }
 
@@ -220,35 +220,22 @@ public static class Interop
             routine: world.RoutineBuilder().NoReadonly(),
             callback: (Entity entity) =>
             {
-                List<S>? scripts = null;
-                query.Each((ref S script) =>
-                {
-                    if (scripts == null)
-                    {
-                        scripts = new List<S>();
-                    }
-                    scripts.Add(script);
-                });
+                var scripts = query.All<S>();
+                if (scripts.Count() == 0) return;
 
-                if (scripts != null)
-                {
-                    world.DeferSuspend();
-                    foreach (var script in scripts) script.Iterate();
-                    world.DeferResume();
-                }
+                world.DeferSuspend();
+                foreach (var script in scripts) script.Iterate();
+                world.DeferResume();
             });
     }
 
-    static async void Task<T>(Entity entity, Task task)
+    static async void Task<T>(Entity entity, Script script)
     {
         try
         {
-            await task;
+            await script.OnImmediate(entity.CsWorld());
 
-            if (entity.IsAlive())
-            {
-                entity.Remove<T>();
-            }
+            await script.Run(entity);
         }
         catch (Exception exception)
         {
@@ -256,6 +243,13 @@ public static class Interop
                 (exception is not ScriptRemovedException))
             {
                 GD.PrintErr(exception);
+            }
+        }
+        finally
+        {
+            if (entity.IsAlive())
+            {
+                entity.Remove<T>();
             }
         }
     }
@@ -336,5 +330,32 @@ public static class Interop
         }
 
         return null;
+    }
+
+    public static void AssertAlive(this Entity entity)
+    {
+        if (!entity.IsAlive())
+        {
+            throw new DeadEntityException(entity);
+        }
+    }
+
+    public static IEnumerable<S> All<S>(this Query query)
+    {
+        List<S>? components = null;
+
+        query.Each((ref S script) =>
+        {
+            if (components == null)
+            {
+                components = new List<S>();
+            }
+
+            components.Add(script);
+        });
+
+        return components == null
+            ? Array.Empty<S>()
+            : components;
     }
 }
