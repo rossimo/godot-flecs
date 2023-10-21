@@ -8,7 +8,7 @@ public partial class MoveCommand : Node
     public Vector2 Position;
 
     [Export]
-    public float Radius = 0;
+    public float Range = 0;
 }
 
 public class Move
@@ -24,11 +24,11 @@ public class Move
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics) =>
             {
-                if (move.Radius > 0)
+                if (move.Range > 0)
                 {
                     var distance = move.Position.DistanceTo(physics.Position);
 
-                    if (distance <= move.Radius)
+                    if (distance <= move.Range)
                     {
                         entity.Remove<MoveCommand>();
                     }

@@ -164,7 +164,7 @@ public class ScriptRemovedException : Exception
 
 public static class ScriptUtils
 {
-    public static Task SetAsync<T>(this Entity entity, T component, Script script)
+    public static Task SetAsync<T>(this Entity entity, Script script, T component)
     {
         return script.SetAsync(entity, component);
     }
@@ -172,5 +172,25 @@ public static class ScriptUtils
     public static Task RemoveAsync<T>(this Entity entity, Script script)
     {
         return script.RemoveAsync<T>(entity);
+    }
+
+    public static Task OnSetAsync<S, T>(this Entity entity, S script) where S : Script
+    {
+        return script.OnSetAsync<S, T>(entity);
+    }
+
+    public static Task OnRemoveAsync<S, T>(this Entity entity, S script) where S : Script
+    {
+        return script.OnRemoveAsync<S, T>(entity);
+    }
+
+    public static async Task WatchAsync<S, T>(this Entity entity, S script, T component) where S : Script
+    {
+        await entity.SetAsync(script, component);
+
+        var set = script.OnSetAsync<S, T>(entity);
+        var remove = script.OnRemoveAsync<S, T>(entity);
+
+        await Task.WhenAny(set, remove);
     }
 }

@@ -11,34 +11,24 @@ public partial class MoveAndInteractScript : Script
 
     public override async Task Run(Entity entity)
     {
-        await entity.SetAsync(new MoveCommand
+        var range = Target.IsAlive() ? 66 : 0;
+
+        await entity.WatchAsync(this, new MoveCommand
         {
             Position = Position,
-            Radius = Target == Entity.Null()
-                ? 0
-                : 66
-        }, this);
+            Range = range
+        });
 
-        await Task.WhenAny(
-            OnSetAsync<MoveCommand>(entity),
-            OnRemoveAsync<MoveCommand>(entity));
+        if (!Target.IsAlive()) return;
 
-        if (Target == Entity.Null()) return;
+        var position = entity.Get<Node2D>().Position;
+        var destination = Target.Get<Node2D>().Position;
 
-        var distance = Target.Get<Node2D>().Position.DistanceTo(entity.Get<Node2D>().Position);
+        if (position.DistanceTo(destination) > range) return;
 
-        if (distance <= 66)
+        await entity.SetAsync(this, new InteractCommand()
         {
-            entity.Set(new InteractCommand()
-            {
-                Target = Target
-            });
-        }
+            Target = Target
+        });
     }
-
-    async Task<T> OnRemoveAsync<T>(Entity entity) =>
-        await OnRemoveAsync<MoveAndInteractScript, T>(entity);
-
-    async Task<T> OnSetAsync<T>(Entity entity) =>
-        await OnSetAsync<MoveAndInteractScript, T>(entity);
 }
