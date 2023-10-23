@@ -224,7 +224,10 @@ public static class Interop
                 if (scripts.Count() == 0) return;
 
                 world.DeferSuspend();
-                foreach (var script in scripts) script.Iterate();
+                foreach (var script in scripts)
+                {
+                    while (script.Iterate()) { }
+                }
                 world.DeferResume();
             });
     }
@@ -233,8 +236,6 @@ public static class Interop
     {
         try
         {
-            await script.OnImmediate(entity.CsWorld());
-
             await script.Run(entity);
         }
         catch (Exception exception)

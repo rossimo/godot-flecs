@@ -13,7 +13,7 @@ public partial class MoveAndInteractScript : Script
     {
         var range = Target.IsAlive() ? 75 : 0;
 
-        entity.Set(new MoveCommand
+        await entity.SetAsync(this, new MoveCommand
         {
             Position = Position,
             Range = range
@@ -30,7 +30,7 @@ public partial class MoveAndInteractScript : Script
 
         if (position.DistanceTo(destination) > range) return;
         
-        entity.Set(new InteractCommand()
+        await entity.SetAsync(this, new InteractCommand()
         {
             Target = Target
         });

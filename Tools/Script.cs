@@ -8,16 +8,14 @@ public partial class Script : Node
         return Task.CompletedTask;
     }
 
-    private TaskCompletionSource? defer;
+    private TaskCompletionSource? immediate;
 
     public async Task<T> OnSetAsync<S, T>(Entity entity) where S : Script
     {
         entity.AssertAlive();
 
-        await OnImmediate(entity.CsWorld());
-
         var world = entity.CsWorld();
-        
+
         var promise = new TaskCompletionSource<T>();
 
         var componentObserver = world.Observer(
@@ -48,8 +46,6 @@ public partial class Script : Node
     public async Task<T> OnRemoveAsync<S, T>(Entity entity) where S : Script
     {
         entity.AssertAlive();
-
-        await OnImmediate(entity.CsWorld());
 
         var world = entity.CsWorld();
 
@@ -97,18 +93,18 @@ public partial class Script : Node
         );
     }
 
-    public void Iterate()
+    public bool Iterate()
     {
-        if (defer != null)
-        {
-            defer.SetResult();
-            defer = null;
-        }
+        if (immediate == null) return false;
+
+        immediate.SetResult();
+        immediate = null;
+        return true;
     }
 
     public async Task SetAsync<T>(Entity entity, T component)
     {
-        await OnImmediate(entity.CsWorld());
+        await ImmediateAsync();
 
         entity.AssertAlive();
 
@@ -117,24 +113,21 @@ public partial class Script : Node
 
     public async Task RemoveAsync<T>(Entity entity)
     {
-        await OnImmediate(entity.CsWorld());
+        await ImmediateAsync();
 
         entity.AssertAlive();
 
         entity.Remove<T>();
     }
 
-    public async Task OnImmediate(World world)
+    public async Task ImmediateAsync()
     {
-        if (world.IsDeferred())
+        if (immediate == null)
         {
-            if (defer == null)
-            {
-                defer = new TaskCompletionSource();
-            }
-
-            await defer.Task;
+            immediate = new TaskCompletionSource();
         }
+
+        await immediate.Task;
     }
 }
 
