@@ -13,7 +13,9 @@ public partial class Game : Node2D
 
 		Physics.Observers(world);
 		Interact.Observers(world);
+		Timer.Observers(world);
 
+		Timer.Systems(world);
 		Input.Systems(world);
 		Interact.Systems(world);
 		Flash.Systems(world);

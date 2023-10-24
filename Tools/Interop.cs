@@ -23,36 +23,44 @@ public static class Interop
 
         node.ChildEnteredTree += (Node node) =>
         {
-            if (entity.IsValid() && node.HasComponent())
+            if (entity.IsValid())
             {
-                if (entity.ReflectionHas(node.GetType()))
-                {
-                    var existing = entity.ReflectionGet(node.GetType());
-                    if (existing == node) return;
-                }
-                entity.ReflectionSet(node);
+                DiscoverComponent(entity, node);
             }
         };
 
         foreach (var child in node.GetChildren())
         {
-            if (child.HasMany())
-            {
-                var childEntity = child.CreateEntity(world);
-                childEntity.ChildOf(entity);
-            }
-            else
-            {
-                entity.ReflectionSet(child);
-            }
-
-            if (!child.HasComponent())
-            {
-                child.CreateEntity(world, entity);
-            }
+            DiscoverComponent(entity, child);
         }
 
         return entity;
+    }
+
+    public static void DiscoverComponent(Entity entity, Node node)
+    {
+        var world = entity.CsWorld();
+
+        if (node.HasMany())
+        {
+            var child = node.CreateEntity(world);
+            child.ChildOf(entity);
+        }
+        else
+        {
+            if (entity.ReflectionHas(node.GetType()))
+            {
+                var existing = entity.ReflectionGet(node.GetType());
+                if (existing == node) return;
+            }
+            
+            entity.ReflectionSet(node);
+        }
+
+        if (!node.HasComponent())
+        {
+            node.CreateEntity(world, entity);
+        }
     }
 
     public static void SetEntity(this GodotObject @object, Entity entity)

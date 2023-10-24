@@ -9,13 +9,19 @@ public partial class FlashScript : Script
 		while (true)
 		{
 			await SetAsync(entity, new FlashCommand { Color = Colors.Red });
-			await Task.Delay(1000);
+			await SetAsync(entity, new TimerCommand { Millis = 1000 });
+			await OnRemoveAsync<TimerCommand>(entity);
 
 			await SetAsync(entity, new FlashCommand { Color = Colors.Green });
-			await Task.Delay(1000);
+			await SetAsync(entity, new TimerCommand { Millis = 1000 });
+			await OnRemoveAsync<TimerCommand>(entity);
 
 			await SetAsync(entity, new FlashCommand { Color = Colors.Blue });
-			await Task.Delay(1000);
+			await SetAsync(entity, new TimerCommand { Millis = 1000 });
+			await OnRemoveAsync<TimerCommand>(entity);
 		}
 	}
+
+	async Task<T> OnRemoveAsync<T>(Entity entity) =>
+		await OnRemoveAsync<FlashScript, T>(entity);
 }

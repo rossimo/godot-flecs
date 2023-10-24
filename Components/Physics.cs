@@ -15,7 +15,7 @@ public class Physics
 	public static float SPEED_SCALE = 60f / FPS;
 	public static float TARGET_FRAMETIME = 1 / FPS;
 
-	public static ulong MillisToTicks(double millis)
+	public static ulong MillisToTicks(ulong millis)
 	{
 		return Convert.ToUInt64(Convert.ToSingle(millis) / 1000f * FPS);
 	}
