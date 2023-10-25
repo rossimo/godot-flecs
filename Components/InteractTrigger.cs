@@ -29,16 +29,16 @@ public class Interact
             {
                 button.Pressed += () =>
                 {
-                    var player = playerQuery.Iter().First();
-
-                    player.Set(new MoveAndInteractScript()
+                    foreach (var player in playerQuery.All())
                     {
-                        Position = entity.Get<Area2D>().GlobalPosition,
-                        Target = entity
-                    });
+                        player.Set(new MoveAndInteractScript()
+                        {
+                            Position = entity.Get<Area2D>().GlobalPosition,
+                            Target = entity
+                        });
+                    }
                 };
             });
-
     }
 
     public static Routine System(World world) =>

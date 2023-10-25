@@ -349,6 +349,25 @@ public static class Interop
         }
     }
 
+    public static IEnumerable<Entity> All(this Query query)
+    {
+        List<Entity>? entities = null;
+
+        query.Each((Entity entity) =>
+        {
+            if (entities == null)
+            {
+                entities = new List<Entity>();
+            }
+
+            entities.Add(entity);
+        });
+
+        return entities == null
+            ? Array.Empty<Entity>()
+            : entities;
+    }
+
     public static IEnumerable<S> All<S>(this Query query)
     {
         List<S>? components = null;
