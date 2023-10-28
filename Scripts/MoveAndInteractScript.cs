@@ -11,10 +11,11 @@ public partial class MoveAndInteractScript : Script
 
     public override async Task Run(Entity entity)
     {
-        var range = Target.IsAlive() ? 75 : 0;
+        var range = Target.IsAlive() ? 100 : 0;
 
         await entity.SetAsync(this, new MoveCommand
         {
+            Target = Target,
             Position = Position,
             Range = range
         });

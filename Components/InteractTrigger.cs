@@ -33,7 +33,7 @@ public class Interact
                     {
                         player.Set(new MoveAndInteractScript()
                         {
-                            Position = entity.Get<Area2D>().GlobalPosition,
+                            Position = entity.Get<Node2D>().GlobalPosition,
                             Target = entity
                         });
                     }

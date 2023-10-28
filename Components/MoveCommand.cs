@@ -9,15 +9,29 @@ public partial class MoveCommand : Node
 
     [Export]
     public float Range = 0;
+
+    public Entity Target;
 }
 
 public class Move
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
+            PositionToTarget(world),
             MoveWithinRange(world),
             MoveAndCollide(world),
         };
+
+    public static Routine PositionToTarget(World world) =>
+        world.Routine(
+            filter: world.FilterBuilder<MoveCommand>(),
+            callback: (ref MoveCommand move) =>
+            {
+                if (move.Target.IsAlive() && move.Target.Has<CharacterBody2D>())
+                {
+                    move.Position = move.Target.Get<CharacterBody2D>().GlobalPosition;
+                }
+            });
 
     public static Routine MoveWithinRange(World world) =>
         world.Routine(

@@ -13,7 +13,6 @@
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
 [ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="9_5hvp6"]
 [ext_resource type="Script" path="res://Components/InteractTrigger.cs" id="12_gaao4"]
-[ext_resource type="Script" path="res://Scripts/FlashScript.cs" id="12_gc2li"]
 [ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="15_ufeh5"]
 [ext_resource type="Script" path="res://Components/TimerCommand.cs" id="16_u036d"]
 [ext_resource type="Script" path="res://Components/TimerTrigger.cs" id="17_1k4nq"]
@@ -35,6 +34,9 @@ script = ExtResource("7_7ko2u")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 30.0
+
+[sub_resource type="Resource" id="Resource_y7lt1"]
+script = ExtResource("8_52gal")
 
 [sub_resource type="Resource" id="Resource_3rdpw"]
 script = ExtResource("8_52gal")
@@ -67,11 +69,8 @@ shape = SubResource("CircleShape2D_fkvev")
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="player"]
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="player/CharacterBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player/CharacterBody2D"]
 shape = SubResource("CircleShape2D_fkvev")
-
-[node name="FlashScript" type="Node" parent="player"]
-script = ExtResource("12_gc2li")
 
 [node name="potion" type="Node2D" parent="."]
 position = Vector2(416, 133)
@@ -143,6 +142,29 @@ shape = SubResource("CircleShape2D_wr2re")
 
 [node name="MoveScript" type="Node" parent="spider"]
 script = ExtResource("15_ufeh5")
+
+[node name="InteractTrigger" type="Node" parent="spider"]
+script = ExtResource("12_gaao4")
+Target = SubResource("Resource_y7lt1")
+
+[node name="FlashCommand" type="Node" parent="spider/InteractTrigger"]
+script = ExtResource("8_w26qf")
+Color = Color(1, 0, 0, 1)
+
+[node name="Button" type="Button" parent="spider"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true
 
 [node name="fire" type="Node2D" parent="."]
 position = Vector2(300, 300)
