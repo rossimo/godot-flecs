@@ -31,10 +31,11 @@ public class Interact
                 {
                     foreach (var player in playerQuery.All())
                     {
-                        player.Set(new MoveAndInteractScript()
+                        player.Set(new MoveAndSetScript()
                         {
                             Position = entity.Get<Node2D>().GlobalPosition,
-                            Target = entity
+                            Target = entity,
+                            Component = new InteractCommand() { Target = entity }
                         });
                     }
                 };

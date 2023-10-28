@@ -111,6 +111,15 @@ public partial class Script : Node
         entity.Set(component);
     }
 
+    public async Task ReflectionSetAsync(Entity entity, object component)
+    {
+        await ImmediateAsync();
+
+        entity.AssertAlive();
+
+        entity.ReflectionSet(component);
+    }
+
     public async Task RemoveAsync<T>(Entity entity)
     {
         await ImmediateAsync();
@@ -147,6 +156,11 @@ public class ScriptRemovedException : Exception
 
 public static class ScriptUtils
 {
+    public static Task ReflectionSetAsync(this Entity entity, Script script, object component)
+    {
+        return script.ReflectionSetAsync(entity, component);
+    }
+
     public static Task SetAsync<T>(this Entity entity, Script script, T component)
     {
         return script.SetAsync(entity, component);
@@ -169,7 +183,7 @@ public static class ScriptUtils
 
     public static async Task OnChangeAsync<S, T>(this Entity entity, S script, T component) where S : Script
     {
-        await entity.SetAsync(script, component);
+        await entity.ReflectionSetAsync(script, component);
 
         await entity.OnChangeAsync<S, T>(script);
     }

@@ -8,20 +8,20 @@ public partial class FlashScript : Script
 	{
 		while (true)
 		{
-			await SetAsync(entity, new FlashCommand { Color = Colors.Red });
-			await SetAsync(entity, new TimerCommand { Millis = 1000 });
-			await OnRemoveAsync<TimerCommand>(entity);
+			await entity.ReflectionSetAsync(this, new FlashCommand { Color = Colors.Red });
+			await entity.OnChangeAsync(this, new TimerCommand { Millis = 1000 });
 
-			await SetAsync(entity, new FlashCommand { Color = Colors.Green });
-			await SetAsync(entity, new TimerCommand { Millis = 1000 });
-			await OnRemoveAsync<TimerCommand>(entity);
+			await entity.ReflectionSetAsync(this, new FlashCommand { Color = Colors.Green });
+			await entity.OnChangeAsync(this, new TimerCommand { Millis = 1000 });
 
-			await SetAsync(entity, new FlashCommand { Color = Colors.Blue });
-			await SetAsync(entity, new TimerCommand { Millis = 1000 });
-			await OnRemoveAsync<TimerCommand>(entity);
+			await entity.ReflectionSetAsync(this, new FlashCommand { Color = Colors.Blue });
+			await entity.OnChangeAsync(this, new TimerCommand { Millis = 1000 });
 		}
 	}
+}
 
-	async Task<T> OnRemoveAsync<T>(Entity entity) =>
-		await OnRemoveAsync<FlashScript, T>(entity);
+public static class FlashScriptUtils
+{
+	public static async Task OnChangeAsync<T>(this Entity entity, FlashScript script, T component) =>
+		await entity.OnChangeAsync<FlashScript, T>(script, component);
 }

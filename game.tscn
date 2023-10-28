@@ -1,208 +1,25 @@
-[gd_scene load_steps=26 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=6 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
-[ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
-[ext_resource type="Script" path="res://Components/Player.cs" id="3_m2k57"]
-[ext_resource type="Texture2D" uid="uid://daxlx8en7d4si" path="res://resources/potion.png" id="5_0mrji"]
-[ext_resource type="Script" path="res://Components/Speed.cs" id="5_m55ya"]
-[ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_osvj0"]
-[ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="5_si3dh"]
-[ext_resource type="Script" path="res://Tools/TargetOther.cs" id="7_7ko2u"]
-[ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="8_52gal"]
-[ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_i5muf"]
-[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="8_w26qf"]
-[ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="9_5hvp6"]
-[ext_resource type="Script" path="res://Components/InteractTrigger.cs" id="12_gaao4"]
-[ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="15_ufeh5"]
-[ext_resource type="Script" path="res://Components/TimerCommand.cs" id="16_u036d"]
-[ext_resource type="Script" path="res://Components/TimerTrigger.cs" id="17_1k4nq"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
-radius = 30.0
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_x0uo1"]
-radius = 15.0
-
-[sub_resource type="Resource" id="Resource_p627l"]
-script = ExtResource("7_7ko2u")
-
-[sub_resource type="Resource" id="Resource_16xei"]
-script = ExtResource("8_52gal")
-
-[sub_resource type="Resource" id="Resource_b3tfd"]
-script = ExtResource("7_7ko2u")
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
-radius = 30.0
-
-[sub_resource type="Resource" id="Resource_y7lt1"]
-script = ExtResource("8_52gal")
-
-[sub_resource type="Resource" id="Resource_3rdpw"]
-script = ExtResource("8_52gal")
-
-[sub_resource type="Resource" id="Resource_o151j"]
-script = ExtResource("8_52gal")
+[ext_resource type="PackedScene" uid="uid://cye3g5vinibl1" path="res://player.tscn" id="2_uug6v"]
+[ext_resource type="PackedScene" uid="uid://dljljg87n68lw" path="res://potion.tscn" id="3_j0bxk"]
+[ext_resource type="PackedScene" uid="uid://ohaq3e5drxy8" path="res://spider.tscn" id="4_h1u8j"]
+[ext_resource type="PackedScene" uid="uid://c8ndvbjqnxfo4" path="res://fire.tscn" id="5_c1tgr"]
 
 [node name="scene" type="Node2D"]
 texture_filter = 1
 script = ExtResource("1_1h04g")
 
-[node name="player" type="Node2D" parent="."]
-position = Vector2(100, 100)
+[node name="player" parent="." instance=ExtResource("2_uug6v")]
 
-[node name="Player" type="Node" parent="player"]
-script = ExtResource("3_m2k57")
+[node name="potion" parent="." instance=ExtResource("3_j0bxk")]
 
-[node name="Speed" type="Node" parent="player"]
-script = ExtResource("5_m55ya")
-Value = 4.0
+[node name="potion2" parent="." instance=ExtResource("3_j0bxk")]
+position = Vector2(31, 284)
 
-[node name="Sprite2D" type="Sprite2D" parent="player"]
-scale = Vector2(4, 4)
-texture = ExtResource("2_bxnyh")
+[node name="spider" parent="." instance=ExtResource("4_h1u8j")]
 
-[node name="Area2D" type="Area2D" parent="player"]
+[node name="fire" parent="." instance=ExtResource("5_c1tgr")]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="player/Area2D"]
-shape = SubResource("CircleShape2D_fkvev")
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="player"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="player/CharacterBody2D"]
-shape = SubResource("CircleShape2D_fkvev")
-
-[node name="potion" type="Node2D" parent="."]
-position = Vector2(416, 133)
-
-[node name="Sprite2D" type="Sprite2D" parent="potion"]
-scale = Vector2(2, 2)
-texture = ExtResource("5_0mrji")
-
-[node name="Area2D" type="Area2D" parent="potion"]
-collision_layer = 2
-collision_mask = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="potion/Area2D"]
-shape = SubResource("CircleShape2D_x0uo1")
-
-[node name="InteractTriggerOther" type="Node" parent="potion"]
-script = ExtResource("12_gaao4")
-Target = SubResource("Resource_p627l")
-
-[node name="FlashCommand" type="Node" parent="potion/InteractTriggerOther"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0, 1, 1)
-
-[node name="InteractTriggerSelf" type="Node" parent="potion"]
-script = ExtResource("12_gaao4")
-Target = SubResource("Resource_16xei")
-
-[node name="DeleteCommand" type="Node" parent="potion/InteractTriggerSelf"]
-script = ExtResource("8_i5muf")
-
-[node name="Button" type="Button" parent="potion"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -15.0
-offset_top = -15.0
-offset_right = 15.0
-offset_bottom = 15.0
-grow_horizontal = 2
-grow_vertical = 2
-focus_mode = 0
-flat = true
-
-[node name="spider" type="Node2D" parent="."]
-position = Vector2(200, 200)
-
-[node name="Speed" type="Node" parent="spider"]
-script = ExtResource("5_m55ya")
-Value = 2.0
-
-[node name="CollisionTriggerOther" type="Node" parent="spider"]
-script = ExtResource("5_si3dh")
-Target = SubResource("Resource_b3tfd")
-
-[node name="Red" type="Node" parent="spider/CollisionTriggerOther"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0, 0, 1)
-
-[node name="Sprite2D" type="Sprite2D" parent="spider"]
-scale = Vector2(4, 4)
-texture = ExtResource("9_5hvp6")
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="spider"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="spider/CharacterBody2D"]
-shape = SubResource("CircleShape2D_wr2re")
-
-[node name="MoveScript" type="Node" parent="spider"]
-script = ExtResource("15_ufeh5")
-
-[node name="InteractTrigger" type="Node" parent="spider"]
-script = ExtResource("12_gaao4")
-Target = SubResource("Resource_y7lt1")
-
-[node name="FlashCommand" type="Node" parent="spider/InteractTrigger"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0, 0, 1)
-
-[node name="Button" type="Button" parent="spider"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -30.0
-offset_top = -30.0
-offset_right = 30.0
-offset_bottom = 30.0
-grow_horizontal = 2
-grow_vertical = 2
-focus_mode = 0
-flat = true
-
-[node name="fire" type="Node2D" parent="."]
-position = Vector2(300, 300)
-
-[node name="CollisionTriggerOther" type="Node" parent="fire"]
-script = ExtResource("5_si3dh")
-Target = SubResource("Resource_b3tfd")
-
-[node name="Red" type="Node" parent="fire/CollisionTriggerOther"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0, 0, 1)
-
-[node name="CollisionTriggerSelf" type="Node" parent="fire"]
-script = ExtResource("5_si3dh")
-Target = SubResource("Resource_3rdpw")
-
-[node name="Orange" type="Node" parent="fire/CollisionTriggerSelf"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0.454902, 0, 1)
-
-[node name="Sprite2D" type="Sprite2D" parent="fire"]
-scale = Vector2(4, 4)
-texture = ExtResource("5_osvj0")
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="fire"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="fire/CharacterBody2D"]
-shape = SubResource("CircleShape2D_wr2re")
-
-[node name="TimerCommand" type="Node" parent="fire"]
-script = ExtResource("16_u036d")
-Millis = 666
-Repeat = true
-
-[node name="TimerTrigger" type="Node" parent="fire"]
-script = ExtResource("17_1k4nq")
-Target = SubResource("Resource_o151j")
-
-[node name="FlashCommand" type="Node" parent="fire/TimerTrigger"]
-script = ExtResource("8_w26qf")
-Color = Color(1, 0.647059, 0.466667, 1)
+[node name="fire2" parent="." instance=ExtResource("5_c1tgr")]
+position = Vector2(523, 74)
