@@ -7,6 +7,9 @@ public partial class TimerCommand : Node
     [Export]
     public ulong Millis { get; set; }
 
+    [Export]
+    public bool Repeat { get; set; }
+
     public ulong Ticks { get; set; } = 0;
 }
 
@@ -42,7 +45,16 @@ public class Timer
 
             if (timer.Ticks <= 0)
             {
-                entity.Remove<TimerCommand>();
+                entity.Trigger<TimerTrigger>();
+
+                if (timer.Repeat)
+                {
+                    timer.Ticks = Physics.MillisToTicks(timer.Millis);
+                }
+                else
+                {
+                    entity.Remove<TimerCommand>();
+                }
             }
         });
 }

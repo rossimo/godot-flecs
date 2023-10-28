@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=26 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="2_bxnyh"]
@@ -15,6 +15,8 @@
 [ext_resource type="Script" path="res://Components/InteractTrigger.cs" id="12_gaao4"]
 [ext_resource type="Script" path="res://Scripts/FlashScript.cs" id="12_gc2li"]
 [ext_resource type="Script" path="res://Scripts/MoveScript.cs" id="15_ufeh5"]
+[ext_resource type="Script" path="res://Components/TimerCommand.cs" id="16_u036d"]
+[ext_resource type="Script" path="res://Components/TimerTrigger.cs" id="17_1k4nq"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 30.0
@@ -35,6 +37,9 @@ script = ExtResource("7_7ko2u")
 radius = 30.0
 
 [sub_resource type="Resource" id="Resource_3rdpw"]
+script = ExtResource("8_52gal")
+
+[sub_resource type="Resource" id="Resource_o151j"]
 script = ExtResource("8_52gal")
 
 [node name="scene" type="Node2D"]
@@ -64,6 +69,9 @@ shape = SubResource("CircleShape2D_fkvev")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="player/CharacterBody2D"]
 shape = SubResource("CircleShape2D_fkvev")
+
+[node name="FlashScript" type="Node" parent="player"]
+script = ExtResource("12_gc2li")
 
 [node name="potion" type="Node2D" parent="."]
 position = Vector2(416, 133)
@@ -108,9 +116,6 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_mode = 0
 flat = true
-
-[node name="FlashScript" type="Node" parent="potion"]
-script = ExtResource("12_gc2li")
 
 [node name="spider" type="Node2D" parent="."]
 position = Vector2(200, 200)
@@ -166,3 +171,16 @@ texture = ExtResource("5_osvj0")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="fire/CharacterBody2D"]
 shape = SubResource("CircleShape2D_wr2re")
+
+[node name="TimerCommand" type="Node" parent="fire"]
+script = ExtResource("16_u036d")
+Millis = 666
+Repeat = true
+
+[node name="TimerTrigger" type="Node" parent="fire"]
+script = ExtResource("17_1k4nq")
+Target = SubResource("Resource_o151j")
+
+[node name="FlashCommand" type="Node" parent="fire/TimerTrigger"]
+script = ExtResource("8_w26qf")
+Color = Color(1, 0.647059, 0.466667, 1)
