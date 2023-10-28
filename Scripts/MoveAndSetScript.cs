@@ -7,8 +7,7 @@ public partial class MoveAndSetScript : Script
     [Export]
     public Vector2 Position;
 
-    [Export]
-    public Node? Component;
+    public object? Component;
 
     public Entity Target = Entity.Null();
 

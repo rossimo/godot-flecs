@@ -4,5 +4,5 @@ using Godot;
 public partial class Trigger : Node
 {
     [Export]
-    public Target? Target { get; set; }
+    public Target? Target { get; set; } = new TargetSelf();
 }

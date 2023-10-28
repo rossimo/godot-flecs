@@ -122,12 +122,12 @@ public static class Interop
         return node.GetType().HasMany();
     }
 
-    public static void Trigger<T>(this Entity entity, Entity other = default) where T : Trigger
+    public static void Trigger<T>(this Entity self, Entity other = default) where T : Trigger
     {
         var typeName = typeof(T).Name;
-        var componentType = entity.CsWorld().Component<T>();
+        var componentType = self.CsWorld().Component<T>();
 
-        entity.Children((Entity triggerEntity) =>
+        self.Children((Entity triggerEntity) =>
         {
             if (triggerEntity.Has<T>())
             {
@@ -150,9 +150,9 @@ public static class Interop
 
                         if (target is TargetSelf)
                         {
-                            entity.ReflectionSet(clone);
+                            self.ReflectionSet(clone);
                         }
-                        else if (target is TargetOther && other.IsValid() && other.IsAlive())
+                        else if (target is TargetOther && other.IsAlive())
                         {
                             other.ReflectionSet(clone);
                         }

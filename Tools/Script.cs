@@ -183,7 +183,7 @@ public static class ScriptUtils
 
     public static async Task OnChangeAsync<S, T>(this Entity entity, S script, T component) where S : Script
     {
-        await entity.ReflectionSetAsync(script, component);
+        await entity.SetAsync(script, component);
 
         await entity.OnChangeAsync<S, T>(script);
     }
