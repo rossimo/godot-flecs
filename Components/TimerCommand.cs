@@ -53,8 +53,7 @@ public class Timer
                 }
                 else
                 {
-                    entity.Populate(timer);
-                    entity.Remove<TimerCommand>();
+                    entity.Conclude(timer);
                 }
             }
         });

@@ -237,7 +237,7 @@ public static class Interop
         {
             await script.Run(entity);
 
-            entity.Populate(script);
+            entity.Conclude(script);
         }
         catch (Exception exception)
         {
@@ -342,14 +342,30 @@ public static class Interop
         }
     }
 
-    public static void Populate<N>(this Entity entity, N node) where N : Node
+    public static void Conclude<N>(this Entity entity, N node) where N : Node
     {
-        if (GDScript.IsInstanceValid(node))
+        if (!GDScript.IsInstanceValid(node))
         {
-            foreach (var child in node.GetChildren())
+            return;
+        }
+
+        var children = node.GetChildren();
+
+        var remove = true;
+
+        foreach (var child in children)
+        {
+            if (child is N)
             {
-                entity.ReflectionSet(child);
+                remove = false;
             }
+
+            entity.ReflectionSet(child);
+        }
+
+        if (remove)
+        {
+            entity.Remove<N>();
         }
     }
 
