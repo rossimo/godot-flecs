@@ -53,13 +53,8 @@ public static class Interop
                 var existing = entity.ReflectionGet(node.GetType());
                 if (existing == node) return;
             }
-            
-            entity.ReflectionSet(node);
-        }
 
-        if (!node.HasComponent())
-        {
-            node.CreateEntity(world, entity);
+            entity.ReflectionSet(node);
         }
     }
 
@@ -70,11 +65,15 @@ public static class Interop
 
     public static Entity GetEntity(this GodotObject @object, World world)
     {
-        if (!@object.HasMeta("entity"))
+        if (@object.HasMeta("entity"))
+        {
+            var id = @object.GetMeta("entity").AsUInt64();
+            return world.Entity(id);
+        }
+        else
+        {
             return Entity.Null();
-
-        var value = @object.GetMeta("entity").AsUInt64();
-        return world.Entity(value);
+        }
     }
 
     public static Entity FindEntity(this GodotObject @object, World world)
@@ -93,23 +92,15 @@ public static class Interop
     {
         var entity = node.GetEntity(world);
         if (entity.IsValid())
+        {
             return entity;
+        }
 
         var parent = node.GetParentOrNull<Node>();
 
         return parent == null
             ? Entity.Null()
             : parent.FindEntity(world);
-    }
-
-    public static bool HasComponent(this Type type)
-    {
-        return type.GetCustomAttributes(typeof(Component), true).Length > 0;
-    }
-
-    public static bool HasComponent(this Node node)
-    {
-        return node.GetType().HasComponent();
     }
 
     public static bool HasMany(this Type type)
@@ -245,6 +236,8 @@ public static class Interop
         try
         {
             await script.Run(entity);
+
+            entity.Populate(script);
         }
         catch (Exception exception)
         {
@@ -265,14 +258,14 @@ public static class Interop
 
     private static MethodInfo removeNodeSystemMethod = typeof(Interop)
         .GetMethods()
-        .First(m => m.ToString() == "Void RemoveNodeSystem[T](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void RemoveNodeSystem[C](Flecs.NET.Core.World)");
 
-    public static void RemoveNodeSystem<T>(this World world) where T : Node
+    public static void RemoveNodeSystem<C>(this World world) where C : Node
     {
         world.Observer(
-            filter: world.FilterBuilder<T>(),
+            filter: world.FilterBuilder<C>(),
             observer: world.ObserverBuilder().Event(Ecs.OnRemove),
-            callback: (Entity entity, ref T component) =>
+            callback: (Entity entity, ref C component) =>
             {
                 if (GDScript.IsInstanceValid(component))
                 {
@@ -283,14 +276,14 @@ public static class Interop
 
     private static MethodInfo setNodeSystemMethod = typeof(Interop)
         .GetMethods()
-        .First(m => m.ToString() == "Void SetNodeSystem[T](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void SetNodeSystem[C](Flecs.NET.Core.World)");
 
-    public static void SetNodeSystem<T>(this World world) where T : Node
+    public static void SetNodeSystem<C>(this World world) where C : Node
     {
         world.Observer(
-            filter: world.FilterBuilder<T>(),
+            filter: world.FilterBuilder<C>(),
             observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Entity entity, ref T node) =>
+            callback: (Entity entity, ref C node) =>
             {
                 if (entity.Has<Parent, Node>() &&
                     node.GetParentOrNull<Node>() == null)
@@ -346,6 +339,17 @@ public static class Interop
         if (!entity.IsAlive())
         {
             throw new DeadEntityException(entity);
+        }
+    }
+
+    public static void Populate<N>(this Entity entity, N node) where N : Node
+    {
+        if (GDScript.IsInstanceValid(node))
+        {
+            foreach (var child in node.GetChildren())
+            {
+                entity.ReflectionSet(child);
+            }
         }
     }
 

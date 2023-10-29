@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/command.png"), Component]
+[GlobalClass, Icon("res://resources/tools/command.png")]
 public partial class FlashCommand : Node
 {
     [Export]
@@ -20,6 +20,7 @@ public class Flash
             filter: world.FilterBuilder<Sprite2D, FlashCommand>(),
             callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
             {
+                entity.Populate(flash);
                 entity.Remove<FlashCommand>();
 
                 node.Modulate = new Color(flash.Color);

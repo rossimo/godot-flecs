@@ -1,14 +1,14 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/command.png"), Component]
+[GlobalClass, Icon("res://resources/tools/command.png")]
 public partial class MoveCommand : Node
 {
     [Export]
     public Vector2 Position;
 
     [Export]
-    public float Range = 0;
+    public float Radius = 0;
 
     public Entity Target;
 }
@@ -38,12 +38,13 @@ public class Move
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics) =>
             {
-                if (move.Range > 0)
+                if (move.Radius > 0)
                 {
                     var distance = move.Position.DistanceTo(physics.Position);
 
-                    if (distance <= move.Range)
+                    if (distance <= move.Radius)
                     {
+                        entity.Populate(move);
                         entity.Remove<MoveCommand>();
                     }
                 }
@@ -88,6 +89,7 @@ public class Move
                 if (physics.Position.IsEqualApprox(move.Position) ||
                     collision != null)
                 {
+                    entity.Populate(move);
                     entity.Remove<MoveCommand>();
                 }
 

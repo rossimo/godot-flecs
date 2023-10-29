@@ -6,7 +6,7 @@ public partial class Game : Node2D
 	private World world = World.Create();
 
 	public override void _Ready()
-	{
+	{	
 		Interop.Observers(world);
 
 		world.Set(new Time());

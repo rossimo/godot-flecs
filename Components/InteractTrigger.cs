@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/trigger.png"), Component, Many]
+[GlobalClass, Icon("res://resources/tools/trigger.png"), Many]
 public partial class InteractTrigger : Trigger
 {
 }
@@ -31,12 +31,19 @@ public class Interact
                 {
                     foreach (var player in playerQuery.All())
                     {
-                        player.Set(new MoveAndSetScript()
+                        var move = new MoveCommand()
                         {
                             Position = entity.Get<Node2D>().GlobalPosition,
+                            Radius = 100,
                             Target = entity,
-                            Component = new InteractCommand() { Target = entity }
+                        };
+
+                        move.AddChild(new InteractCommand()
+                        {
+                            Target = entity
                         });
+
+                        player.Set(move);
                     }
                 };
             });
@@ -47,7 +54,15 @@ public class Interact
         filter: world.FilterBuilder<InteractCommand>(),
         callback: (Entity entity, ref InteractCommand interact) =>
         {
-            interact.Target.Trigger<InteractTrigger>(entity);
+            var position = entity.Get<Node2D>().Position;
+            var destination = interact.Target.Get<Node2D>().Position;
+
+            if (position.DistanceTo(destination) <= 100)
+            {
+                interact.Target.Trigger<InteractTrigger>(entity);
+            }
+
+            entity.Populate(interact);
             entity.Remove<InteractCommand>();
         });
 }

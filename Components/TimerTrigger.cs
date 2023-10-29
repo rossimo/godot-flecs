@@ -1,6 +1,6 @@
 using Godot;
 
-[GlobalClass, Icon("res://resources/tools/trigger.png"), Component, Many]
+[GlobalClass, Icon("res://resources/tools/trigger.png"), Many]
 public partial class TimerTrigger : Trigger
 {
 }

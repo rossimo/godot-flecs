@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/script.png"), Component]
+[GlobalClass, Icon("res://resources/tools/script.png")]
 public partial class FlashScript : Script
 {
 	public async override Task Run(Entity entity)

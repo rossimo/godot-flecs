@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-[GlobalClass, Icon("res://resources/tools/command.png"), Component]
+[GlobalClass, Icon("res://resources/tools/command.png")]
 public partial class TimerCommand : Node
 {
     [Export]
@@ -53,6 +53,7 @@ public class Timer
                 }
                 else
                 {
+                    entity.Populate(timer);
                     entity.Remove<TimerCommand>();
                 }
             }
