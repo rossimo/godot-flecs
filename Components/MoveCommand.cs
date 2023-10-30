@@ -44,7 +44,7 @@ public class Move
 
                     if (distance <= move.Radius)
                     {
-                        entity.Conclude(move);
+                        entity.Complete(move);
                     }
                 }
             });
@@ -85,10 +85,13 @@ public class Move
 
                 var collision = physics.MoveAndCollide(vector);
 
-                if (physics.Position.IsEqualApprox(move.Position) ||
-                    collision != null)
+                if (physics.Position.IsEqualApprox(move.Position))
                 {
-                    entity.Conclude(move);
+                    entity.Complete(move);
+                }
+                else if (collision != null)
+                {
+                    entity.Remove<MoveCommand>();
                 }
 
                 if (collision != null)

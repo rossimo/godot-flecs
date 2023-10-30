@@ -1,0 +1,50 @@
+[gd_scene load_steps=10 format=3 uid="uid://dqqjcxi7w8uhc"]
+
+[ext_resource type="Texture2D" uid="uid://b7lbg1quo8a57" path="res://resources/sword.png" id="1_sbvi1"]
+[ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="2_blgip"]
+[ext_resource type="Script" path="res://Tools/TargetOther.cs" id="3_ssoip"]
+[ext_resource type="Script" path="res://Components/DamageCommand.cs" id="4_u5yq3"]
+[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="5_8ssl6"]
+[ext_resource type="Script" path="res://Components/TimerCommand.cs" id="6_pnk4g"]
+[ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="7_tbq8h"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8hinv"]
+radius = 2.0
+height = 13.0
+
+[sub_resource type="Resource" id="Resource_cttwf"]
+script = ExtResource("3_ssoip")
+
+[node name="Node2D" type="Node2D"]
+scale = Vector2(2, 2)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = -0.785398
+texture = ExtResource("1_sbvi1")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, -3)
+shape = SubResource("CapsuleShape2D_8hinv")
+
+[node name="AreaTriggerOther" type="Node" parent="."]
+script = ExtResource("2_blgip")
+Target = SubResource("Resource_cttwf")
+
+[node name="DamageCommand" type="Node" parent="AreaTriggerOther"]
+script = ExtResource("4_u5yq3")
+Value = 1
+
+[node name="FlashCommand" type="Node" parent="AreaTriggerOther"]
+script = ExtResource("5_8ssl6")
+Color = Color(1, 0, 0, 1)
+
+[node name="TimerCommand" type="Node" parent="."]
+script = ExtResource("6_pnk4g")
+Millis = 250
+Repeat = null
+
+[node name="DeleteCommand" type="Node" parent="TimerCommand"]
+script = ExtResource("7_tbq8h")

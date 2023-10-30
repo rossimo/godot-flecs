@@ -20,7 +20,7 @@ public class Flash
             filter: world.FilterBuilder<Sprite2D, FlashCommand>(),
             callback: (Entity entity, ref Sprite2D node, ref FlashCommand flash) =>
             {
-                entity.Conclude(flash);
+                entity.Complete(flash);
 
                 node.Modulate = new Color(flash.Color);
                 node.CreateTween().TweenProperty(node, "modulate", new Color(1, 1, 1), 0.5f);

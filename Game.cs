@@ -9,12 +9,14 @@ public partial class Game : Node2D
 	{	
 		Interop.Observers(world);
 
+		world.Set(this);
 		world.Set(new Time());
 
 		Physics.Observers(world);
 		Interact.Observers(world);
 		Timer.Observers(world);
 
+		Damage.Systems(world);
 		Timer.Systems(world);
 		Input.Systems(world);
 		Interact.Systems(world);

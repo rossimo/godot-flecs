@@ -1,7 +1,8 @@
 using Godot;
+using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/component.png")]
-public partial class Player : Node
+public partial class Enemy : Node
 {
-	
+
 }

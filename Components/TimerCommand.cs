@@ -53,7 +53,7 @@ public class Timer
                 }
                 else
                 {
-                    entity.Conclude(timer);
+                    entity.Complete(timer);
                 }
             }
         });

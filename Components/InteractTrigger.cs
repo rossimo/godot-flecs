@@ -31,6 +31,8 @@ public class Interact
             {
                 button.Pressed += () =>
                 {
+                    entity.Trigger<ClickTrigger>();
+
                     foreach (var player in playerQuery.All())
                     {
                         var move = new MoveCommand()
@@ -39,7 +41,7 @@ public class Interact
                             Radius = DEFAULT_RADIUS,
                             Target = entity,
                         };
-
+                        
                         move.AddChild(new InteractCommand()
                         {
                             Target = entity
@@ -64,7 +66,7 @@ public class Interact
                 if (position.DistanceTo(destination) <= DEFAULT_RADIUS)
                 {
                     interact.Target.Trigger<InteractTrigger>(entity);
-                    entity.Conclude(interact);
+                    entity.Complete(interact);
                 }
             }
         });

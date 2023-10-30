@@ -1,25 +1,65 @@
-[gd_scene load_steps=6 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=17 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="PackedScene" uid="uid://cye3g5vinibl1" path="res://player.tscn" id="2_uug6v"]
 [ext_resource type="PackedScene" uid="uid://dljljg87n68lw" path="res://potion.tscn" id="3_j0bxk"]
+[ext_resource type="Script" path="res://Components/Health.cs" id="3_lxlls"]
+[ext_resource type="Script" path="res://Components/Player.cs" id="4_asrmx"]
 [ext_resource type="PackedScene" uid="uid://ohaq3e5drxy8" path="res://spider.tscn" id="4_h1u8j"]
 [ext_resource type="PackedScene" uid="uid://c8ndvbjqnxfo4" path="res://fire.tscn" id="5_c1tgr"]
+[ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="6_cmsoj"]
+[ext_resource type="Script" path="res://Scripts/SpiderMoveScript.cs" id="6_xs7px"]
+[ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="7_h8iii"]
+[ext_resource type="Script" path="res://Components/Enemy.cs" id="7_jjet5"]
+[ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_nyl2a"]
+[ext_resource type="Script" path="res://Tools/TargetOther.cs" id="9_aaqpl"]
+[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="10_5iu7t"]
+
+[sub_resource type="Resource" id="Resource_2bkiq"]
+script = ExtResource("7_h8iii")
+
+[sub_resource type="Resource" id="Resource_lnpqm"]
+script = ExtResource("9_aaqpl")
 
 [node name="scene" type="Node2D"]
-texture_filter = 1
 script = ExtResource("1_1h04g")
 
 [node name="player" parent="." instance=ExtResource("2_uug6v")]
 
+[node name="Health" type="Node" parent="player"]
+script = ExtResource("3_lxlls")
+Value = 5
+
+[node name="Player2" type="Node" parent="player"]
+script = ExtResource("4_asrmx")
+
 [node name="potion" parent="." instance=ExtResource("3_j0bxk")]
 
-[node name="potion2" parent="." instance=ExtResource("3_j0bxk")]
-position = Vector2(31, 284)
+[node name="AreaTriggerSelf2" type="Node" parent="potion"]
+script = ExtResource("6_cmsoj")
+Target = SubResource("Resource_2bkiq")
+
+[node name="DeleteCommand" type="Node" parent="potion/AreaTriggerSelf2"]
+script = ExtResource("8_nyl2a")
+
+[node name="AreaTriggerOther" type="Node" parent="potion"]
+script = ExtResource("6_cmsoj")
+Target = SubResource("Resource_lnpqm")
+
+[node name="FlashCommand" type="Node" parent="potion/AreaTriggerOther"]
+script = ExtResource("10_5iu7t")
+Color = Color(0, 0.752941, 0, 1)
 
 [node name="spider" parent="." instance=ExtResource("4_h1u8j")]
 
-[node name="fire" parent="." instance=ExtResource("5_c1tgr")]
+[node name="Health" type="Node" parent="spider"]
+script = ExtResource("3_lxlls")
+Value = 2
 
-[node name="fire2" parent="." instance=ExtResource("5_c1tgr")]
-position = Vector2(523, 74)
+[node name="Enemy" type="Node" parent="spider"]
+script = ExtResource("7_jjet5")
+
+[node name="SpiderMoveScript" type="Node" parent="spider"]
+script = ExtResource("6_xs7px")
+
+[node name="fire" parent="." instance=ExtResource("5_c1tgr")]

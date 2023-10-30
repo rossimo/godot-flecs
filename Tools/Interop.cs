@@ -11,8 +11,9 @@ public static class Interop
     {
         if (!entity.IsValid())
         {
-            var name = node.GetPath();
-            entity = world.Entity(name);
+            entity = node.IsInsideTree()
+                ? world.Entity(node.GetPath())
+                : world.Entity();
 
             entity.ReflectionSet(node);
             entity.SetSecond<Parent, Node>(node);
@@ -25,7 +26,15 @@ public static class Interop
         {
             if (entity.IsValid())
             {
-                DiscoverComponent(entity, node);
+                var existing = node.GetEntity(world);
+                if (existing.IsValid())
+                {
+                    existing.ChildOf(entity);
+                }
+                else
+                {
+                    DiscoverComponent(entity, node);
+                }
             }
         };
 
@@ -237,7 +246,7 @@ public static class Interop
         {
             await script.Run(entity);
 
-            entity.Conclude(script);
+            entity.Complete(script);
         }
         catch (Exception exception)
         {
@@ -342,7 +351,7 @@ public static class Interop
         }
     }
 
-    public static void Conclude<N>(this Entity entity, N node) where N : Node
+    public static void Complete<N>(this Entity entity, N node) where N : Node
     {
         if (!GDScript.IsInstanceValid(node))
         {
