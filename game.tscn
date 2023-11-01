@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=16 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="PackedScene" uid="uid://cye3g5vinibl1" path="res://player.tscn" id="2_uug6v"]
@@ -10,7 +10,6 @@
 [ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="6_cmsoj"]
 [ext_resource type="Script" path="res://Scripts/SpiderMoveScript.cs" id="6_xs7px"]
 [ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="7_h8iii"]
-[ext_resource type="Script" path="res://Components/Enemy.cs" id="7_jjet5"]
 [ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_nyl2a"]
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="9_aaqpl"]
 [ext_resource type="Script" path="res://Components/FlashCommand.cs" id="10_5iu7t"]
@@ -55,9 +54,6 @@ Color = Color(0, 0.752941, 0, 1)
 [node name="Health" type="Node" parent="spider"]
 script = ExtResource("3_lxlls")
 Value = 2
-
-[node name="Enemy" type="Node" parent="spider"]
-script = ExtResource("7_jjet5")
 
 [node name="SpiderMoveScript" type="Node" parent="spider"]
 script = ExtResource("6_xs7px")

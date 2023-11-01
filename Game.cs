@@ -16,6 +16,7 @@ public partial class Game : Node2D
 		Interact.Observers(world);
 		Timer.Observers(world);
 
+		Attack.Systems(world);
 		Damage.Systems(world);
 		Timer.Systems(world);
 		Input.Systems(world);

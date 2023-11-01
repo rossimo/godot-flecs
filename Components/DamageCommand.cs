@@ -13,14 +13,16 @@ public class Damage
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
             System(world),
+            Cleanup(world)
         };
 
     public static Routine System(World world) =>
         world.Routine(
-            filter: world.FilterBuilder().Term<DamageCommand>().Term<Health>(),
+            filter: world.FilterBuilder().Term<DamageCommand>().Term<Health>().NotTrigger(),
             callback: (Entity entity, ref DamageCommand damage, ref Health health) =>
             {
                 health.Value -= damage.Value;
+                Console.WriteLine($"Health: {health.Value}");
 
                 if (health.Value <= 0)
                 {
@@ -28,6 +30,14 @@ public class Damage
                 }
 
                 entity.Complete(damage);
-                entity.Cleanup();
+            });
+
+
+    public static Routine Cleanup(World world) =>
+        world.Routine(
+            filter: world.FilterBuilder().Term<DamageCommand>().NotTrigger(),
+            callback: (Entity entity, ref DamageCommand damage) =>
+            {
+                entity.Remove<DamageCommand>();
             });
 }

@@ -15,7 +15,7 @@ public class Delete
 
     public static Routine System(World world) =>
         world.Routine(
-            filter: world.FilterBuilder().Term<DeleteCommand>().Term<Sprite2D>(),
+            filter: world.FilterBuilder().Term<DeleteCommand>().NotTrigger(),
             callback: (Entity entity) =>
             {
                 entity.Destruct();

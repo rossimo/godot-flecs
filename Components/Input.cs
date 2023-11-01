@@ -18,7 +18,6 @@ public class Input
     {
         var players = world.Query(filter: world.FilterBuilder().Term<Player>());
         var game = world.Get<Game>();
-        var swordScene = ResourceLoader.Load<PackedScene>("res://sword.tscn");
 
         return world.Routine(
             filter: world.FilterBuilder().Term<MouseEvent>(),
@@ -44,26 +43,37 @@ public class Input
 
                         case MouseButton.Left:
                             {
+                                var objects = game.GetWorld2D()
+                                    .DirectSpaceState
+                                    .IntersectPoint(new PhysicsPointQueryParameters2D()
+                                    {
+                                        Position = position
+                                    }, 1);
+
                                 players.Each(player =>
                                 {
-                                    var parent = player.Get<Node2D>();
+                                    var move = new MoveCommand
+                                    {
+                                        Position = position,
+                                    };
 
-                                    var angle = parent.GlobalPosition.AngleToPoint(position);
+                                    if (objects.Count > 0)
+                                    {
+                                        var body = objects[0]["collider"].As<CharacterBody2D>();
+                                        var target = body.FindEntity(world);
+                                        if (target.IsAlive())
+                                        {
+                                            move.Radius = 100;
+                                            move.Target = target;
 
-                                    var arc = (float)(Math.PI / 2);
+                                            move.AddChild(new AttackCommand()
+                                            {
+                                                Target = target
+                                            });
+                                        }
+                                    }
 
-                                    var arm = new Node2D();
-                                    arm.CreateEntity(world);
-                                    arm.Rotation = angle + (float)(Math.PI / 2) - arc / 2;
-
-                                    var sword = swordScene.Instantiate<Node2D>();
-                                    sword.CreateEntity(world);
-                                    sword.Position = new Vector2(0, -65);
-
-                                    arm.AddChild(sword);
-                                    parent.AddChild(arm);
-
-                                    arm.CreateTween().TweenProperty(arm, "rotation", arm.Rotation + arc, 0.25);
+                                    player.Set(move);
                                 });
                             }
                             break;

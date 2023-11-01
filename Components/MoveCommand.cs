@@ -18,7 +18,6 @@ public class Move
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
             PositionToTarget(world),
-            MoveWithinRange(world),
             MoveAndCollide(world),
         };
 
@@ -33,27 +32,22 @@ public class Move
                 }
             });
 
-    public static Routine MoveWithinRange(World world) =>
+    public static Routine MoveAndCollide(World world) =>
         world.Routine(
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
-            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics) =>
+            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D body, ref Speed speed) =>
             {
                 if (move.Radius > 0)
                 {
-                    var distance = move.Position.DistanceTo(physics.Position);
+                    var distance = move.Position.DistanceTo(body.Position);
 
                     if (distance <= move.Radius)
                     {
                         entity.Complete(move);
+                        return;
                     }
                 }
-            });
 
-    public static Routine MoveAndCollide(World world) =>
-        world.Routine(
-            filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
-            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D physics, ref Speed speed) =>
-            {
                 var scale = world.Get<Time>().Scale;
 
                 Vector2 direction;
@@ -62,30 +56,30 @@ public class Move
                     var navigationAgent = entity.Get<NavigationAgent2D>();
                     navigationAgent.TargetPosition = move.Position;
 
-                    direction = physics.Position
+                    direction = body.Position
                         .DirectionTo(navigationAgent.GetNextPathPosition())
                         .Normalized();
                 }
                 else
                 {
-                    direction = physics.Position
+                    direction = body.Position
                         .DirectionTo(move.Position)
                         .Normalized();
                 }
 
                 var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
-                var remaining = physics.Position.DistanceTo(move.Position);
+                var remaining = body.Position.DistanceTo(move.Position);
                 var full = vector.DistanceTo(Vector2.Zero);
 
                 if (remaining < full)
                 {
-                    vector = move.Position - physics.Position;
+                    vector = move.Position - body.Position;
                 }
 
-                var collision = physics.MoveAndCollide(vector);
+                var collision = body.MoveAndCollide(vector);
 
-                if (physics.Position.IsEqualApprox(move.Position))
+                if (body.Position.IsEqualApprox(move.Position))
                 {
                     entity.Complete(move);
                 }
