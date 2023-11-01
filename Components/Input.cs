@@ -3,18 +3,24 @@ using Flecs.NET.Core;
 
 public struct MouseEvent
 {
-    public InputEventMouseButton mouse;
-    public Vector2 position;
+    public InputEventMouseButton Button;
+    public Vector2 Position;
+}
+
+public struct ControllerEvent
+{
+    public Vector2 Direction;
 }
 
 public class Input
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
-            Move(world),
+            MouseInput(world),
+            ControllerInput(world),
         };
 
-    public static Routine Move(World world)
+    public static Routine MouseInput(World world)
     {
         var players = world.Query(filter: world.FilterBuilder().Term<Player>());
         var game = world.Get<Game>();
@@ -23,11 +29,11 @@ public class Input
             filter: world.FilterBuilder().Term<MouseEvent>(),
             callback: (Entity entity, ref MouseEvent @event) =>
             {
-                var position = @event.position;
+                var position = @event.Position;
 
-                if (@event.mouse.IsPressed())
+                if (@event.Button.IsPressed())
                 {
-                    switch (@event.mouse.ButtonIndex)
+                    switch (@event.Button.ButtonIndex)
                     {
                         case MouseButton.Right:
                             {
@@ -81,6 +87,30 @@ public class Input
                 }
 
                 entity.Remove<MouseEvent>();
+            });
+    }
+
+    public static Routine ControllerInput(World world)
+    {
+        var players = world.Query(filter: world.FilterBuilder().Term<Player>());
+        var game = world.Get<Game>();
+
+        return world.Routine(
+            filter: world.FilterBuilder().Term<ControllerEvent>(),
+            callback: (Entity entity, ref ControllerEvent @event) =>
+            {
+                var direction = @event.Direction;
+
+                players.Each(player =>
+                {
+                    var body = player.Get<CharacterBody2D>();
+                    player.Set(new MoveCommand
+                    {
+                        Position = body.Position + (direction * 10)
+                    });
+                });
+
+                entity.Remove<ControllerEvent>();
             });
     }
 }

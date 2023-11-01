@@ -6,7 +6,7 @@ public partial class Game : Node2D
 	private World world = World.Create();
 
 	public override void _Ready()
-	{	
+	{
 		Interop.Observers(world);
 
 		world.Set(this);
@@ -41,6 +41,15 @@ public partial class Game : Node2D
 		time.Scale = (float)(delta / Physics.TARGET_FRAMETIME);
 		time.Ticks++;
 
+		var direction = Godot.Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down").Normalized();
+		if (!direction.IsZeroApprox())
+		{
+			world.Set(new ControllerEvent
+			{
+				Direction = direction
+			});
+		}
+
 		world.Progress();
 	}
 
@@ -50,8 +59,8 @@ public partial class Game : Node2D
 		{
 			world.Set(new MouseEvent
 			{
-				mouse = mouse,
-				position = ToLocal(GetViewport().GetMousePosition())
+				Button = mouse,
+				Position = ToLocal(GetViewport().GetMousePosition())
 			});
 		}
 	}
