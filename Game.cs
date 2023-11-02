@@ -50,6 +50,12 @@ public partial class Game : Node2D
 			});
 		}
 
+		var attackPressed = Godot.Input.IsActionJustPressed("attack");
+		if (attackPressed)
+		{
+			world.Add<InputAttackCommand>();
+		}
+
 		world.Progress();
 	}
 
