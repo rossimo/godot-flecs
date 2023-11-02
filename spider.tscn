@@ -10,7 +10,6 @@ radius = 30.0
 radius = 30.0
 
 [node name="spider" type="Node2D"]
-position = Vector2(200, 200)
 
 [node name="Speed" type="Node" parent="."]
 script = ExtResource("1_uqgul")
