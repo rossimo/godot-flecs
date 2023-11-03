@@ -14,8 +14,7 @@ public class Attack
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
-            System(world),
-            Cleanup(world)
+            System(world)
         };
 
     public static Routine System(World world)
@@ -70,14 +69,8 @@ public class Attack
                 body.AddChild(arm);
 
                 arm.CreateTween().TweenProperty(arm, "rotation", arm.Rotation + arc, duration);
+
+                entity.Remove<AttackCommand>();
             });
     }
-
-    public static Routine Cleanup(World world) =>
-    world.Routine(
-        filter: world.FilterBuilder().Term<AttackCommand>().NotTrigger(),
-        callback: (Entity entity) =>
-        {
-            entity.Remove<AttackCommand>();
-        });
 }
