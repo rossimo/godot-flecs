@@ -17,6 +17,16 @@ public struct ControllerEvent
     public Vector2 Direction;
 }
 
+public struct LastIntent
+{
+    public Vector2 Direction;
+}
+
+public struct LastAttack
+{
+    public ulong Ticks;
+}
+
 public class Input
 {
     public static IEnumerable<Routine> Systems(World world) =>
@@ -110,6 +120,7 @@ public class Input
                 players.Each(player =>
                 {
                     var body = player.Get<CharacterBody2D>();
+
                     player.Set(new MoveCommand
                     {
                         Position = body.Position + (direction * 10)
@@ -135,19 +146,35 @@ public class Input
                     var playerBody = player.Get<CharacterBody2D>();
 
                     var targets = bodies.All<CharacterBody2D>()
-                        .Where(body => body.GlobalPosition.DistanceTo(playerBody.GlobalPosition) <= 150)
+                        .Where(body => body.GlobalPosition.DistanceTo(playerBody.GlobalPosition) <= 100)
                         .Select(body => body.FindEntity(world))
                         .Where(target => target.IsAlive() && target != player)
                         .OrderBy(body => body.Has<Health>() ? 0 : 1);
 
                     foreach (var target in targets)
                     {
+                        var targetBody = target.Get<CharacterBody2D>();
+
+                        player.Set(new LastIntent()
+                        {
+                            Direction = playerBody.Position.DirectionTo(targetBody.Position).Normalized()
+                        });
+
                         player.Set(new AttackCommand()
                         {
                             Target = target
                         });
                         return;
                     }
+
+                    var intent = player.Has<LastIntent>()
+                        ? player.Get<LastIntent>().Direction
+                        : Vector2.Down;
+
+                    player.Set(new AttackCommand()
+                    {
+                        Angle = Vector2.Zero.AngleToPoint(intent)
+                    });
                 });
 
                 entity.Remove<InputAttackCommand>();

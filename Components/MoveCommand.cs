@@ -37,6 +37,11 @@ public class Move
             filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
             callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D body, ref Speed speed) =>
             {
+                entity.Set(new LastIntent()
+                {
+                    Direction = body.Position.DirectionTo(move.Position).Normalized()
+                });
+
                 if (move.Radius > 0)
                 {
                     var distance = move.Position.DistanceTo(body.Position);

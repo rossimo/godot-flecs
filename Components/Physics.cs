@@ -6,7 +6,7 @@ public struct Time
 	public Time() { }
 	public double Delta = 1 / Physics.FPS;
 	public float Scale = 1;
-	public int Ticks = 0;
+	public ulong Ticks = 0;
 }
 
 public class Physics

@@ -26,6 +26,24 @@ public class Attack
             filter: world.FilterBuilder().Term<AttackCommand>().Term<CharacterBody2D>().NotTrigger(),
             callback: (Entity entity, ref AttackCommand attack, ref CharacterBody2D body) =>
             {
+                var lastAttackTick = entity.Has<LastAttack>() 
+                    ? entity.Get<LastAttack>().Ticks
+                    : 0;
+
+                var duration = .2;
+
+                var time = world.Get<Time>();
+
+                if ((time.Ticks - lastAttackTick) < Physics.MillisToTicks((ulong)(duration * 1000)))
+                {
+                    return;
+                }
+
+                entity.Set(new LastAttack()
+                {
+                    Ticks = time.Ticks
+                });
+
                 var angle = attack.Angle;
 
                 if (attack.Target.IsAlive() && attack.Target.Has<CharacterBody2D>())
@@ -35,8 +53,6 @@ public class Attack
                 }
 
                 var arc = (float)(Math.PI / 2);
-
-                var duration = .25;
 
                 var arm = new Node2D();
                 var timer = new TimerCommand() { Millis = (ulong)(duration * 1000) };
