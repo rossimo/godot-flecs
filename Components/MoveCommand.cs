@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class MoveCommand : Node
+public partial class MoveCommand : BootstrapNode2D
 {
     [Export]
     public Vector2 Position;
@@ -22,9 +22,8 @@ public class Move
         };
 
     public static Routine PositionToTarget(World world) =>
-        world.Routine(
-            filter: world.FilterBuilder<MoveCommand>(),
-            callback: (ref MoveCommand move) =>
+        world.Routine<MoveCommand>()
+        .Each((ref MoveCommand move) =>
             {
                 if (move.Target.IsAlive() && move.Target.Has<CharacterBody2D>())
                 {
@@ -33,9 +32,8 @@ public class Move
             });
 
     public static Routine MoveAndCollide(World world) =>
-        world.Routine(
-            filter: world.FilterBuilder<MoveCommand, CharacterBody2D, Speed>(),
-            callback: (Entity entity, ref MoveCommand move, ref CharacterBody2D body, ref Speed speed) =>
+        world.Routine<MoveCommand, CharacterBody2D, Speed>()
+            .Each((Entity entity, ref MoveCommand move, ref CharacterBody2D body, ref Speed speed) =>
             {
                 entity.Set(new LastIntent()
                 {
@@ -48,7 +46,8 @@ public class Move
 
                     if (distance <= move.Radius)
                     {
-                        entity.Complete(move);
+                        move.Complete(entity);
+                        entity.Remove<MoveCommand>();
                         return;
                     }
                 }
@@ -86,7 +85,8 @@ public class Move
 
                 if (body.Position.IsEqualApprox(move.Position))
                 {
-                    entity.Complete(move);
+                    move.Complete(entity);
+                    entity.Remove<MoveCommand>();
                 }
                 else if (collision != null)
                 {
@@ -95,7 +95,7 @@ public class Move
 
                 if (collision != null)
                 {
-                    var other = collision.GetCollider().FindEntity(world);
+                    var other = collision.GetCollider().GetEntity(world);
                     entity.Trigger<CollisionTrigger>(other);
 
                     if (other.IsValid())

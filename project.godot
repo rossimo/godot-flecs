@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="New Game Project"
-run/main_scene="res://game.tscn"
-config/features=PackedStringArray("4.1", "C#", "Forward Plus")
+run/main_scene="res://bootstrap.tscn"
+config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 
 [dotnet]
 

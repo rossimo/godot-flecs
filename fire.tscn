@@ -1,51 +1,33 @@
-[gd_scene load_steps=11 format=3 uid="uid://c8ndvbjqnxfo4"]
+[gd_scene load_steps=6 format=3 uid="uid://c8ndvbjqnxfo4"]
 
-[ext_resource type="Script" path="res://Components/CollisionTrigger.cs" id="1_3rq6r"]
-[ext_resource type="Script" path="res://Tools/TargetOther.cs" id="2_gjlet"]
-[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="3_5342r"]
-[ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="4_1b821"]
+[ext_resource type="Script" path="res://Tools/Entity2D.cs" id="1_ad12h"]
 [ext_resource type="Texture2D" uid="uid://snk4hinpej7u" path="res://resources/fire.png" id="5_lox3f"]
-[ext_resource type="Script" path="res://Components/TimerCommand.cs" id="6_xtd8l"]
-[ext_resource type="Script" path="res://Components/TimerTrigger.cs" id="7_deey7"]
+[ext_resource type="Script" path="res://Components/Speed.cs" id="8_5ddhc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4ct4w"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
-radius = 30.0
-
-[sub_resource type="Resource" id="Resource_b3tfd"]
-script = ExtResource("2_gjlet")
-
-[sub_resource type="Resource" id="Resource_o151j"]
-script = ExtResource("4_1b821")
 
 [node name="fire" type="Node2D"]
 position = Vector2(300, 300)
+script = ExtResource("1_ad12h")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(4, 4)
+scale = Vector2(2, 2)
 texture = ExtResource("5_lox3f")
 
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_4ct4w")
+
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+collision_layer = 4
+collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("CircleShape2D_wr2re")
 
-[node name="CollisionTriggerOther" type="Node" parent="."]
-script = ExtResource("1_3rq6r")
-Target = SubResource("Resource_b3tfd")
-
-[node name="OrangeFlash" type="Node" parent="CollisionTriggerOther"]
-script = ExtResource("3_5342r")
-Color = Color(1, 0.647059, 0.466667, 1)
-
-[node name="TimerCommand" type="Node" parent="."]
-script = ExtResource("6_xtd8l")
-Millis = 666
-Repeat = true
-
-[node name="TimerTrigger" type="Node" parent="."]
-script = ExtResource("7_deey7")
-Target = SubResource("Resource_o151j")
-
-[node name="OrangeFlash" type="Node" parent="TimerTrigger"]
-script = ExtResource("3_5342r")
-Color = Color(1, 0.647059, 0.466667, 1)
+[node name="Speed" type="Node" parent="."]
+script = ExtResource("8_5ddhc")
+Value = 0.1

@@ -1,69 +1,66 @@
 using Godot;
 using Flecs.NET.Core;
 
-public partial class Game : Node2D
+public partial class Game : WorldNode
 {
-	private World world = World.Create();
-
-	public override void _Ready()
+	public override void _EnterTree()
 	{
-		Interop.Observers(world);
+		base._EnterTree();
 
-		world.Set(this);
-		world.Set(new Time());
+		World.Set(new Time());
 
-		Physics.Observers(world);
-		Interact.Observers(world);
-		Timer.Observers(world);
+		Physics.Observers(World);
+		Interact.Observers(World);
+		Timer.Observers(World);
+		Animation.Observers(World);
+		StateMachines.Observers(World);
 
-		Attack.Systems(world);
-		Damage.Systems(world);
-		Timer.Systems(world);
-		Input.Systems(world);
-		Interact.Systems(world);
-		Flash.Systems(world);
-		Move.Systems(world);
-		Physics.Systems(world);
-		Delete.Systems(world);
-
-		world.Set(this);
-
-		foreach (var node in GetChildren())
-		{
-			node.CreateEntity(world);
-		}
+		StateMachines.Systems(World);
+		Animation.Systems(World);
+		Attack.Systems(World);
+		Damage.Systems(World);
+		Timer.Systems(World);
+		Input.Systems(World);
+		Interact.Systems(World);
+		Flash.Systems(World);
+		Colorize.Systems(World);
+		Move.Systems(World);
+		Physics.Systems(World);
+		Delete.Systems(World);
 	}
+
+	static StringName UI_LEFT = new StringName("ui_left");
+	static StringName UI_RIGHT = new StringName("ui_right");
+	static StringName UI_UP = new StringName("ui_up");
+	static StringName UI_DOWN = new StringName("ui_down");
+	static StringName ATTACK = new StringName("attack");
 
 	public override void _PhysicsProcess(double delta)
 	{
-		ref var time = ref world.GetMut<Time>();
+		ref var time = ref World.GetMut<Time>();
 		time.Delta = delta;
 		time.Scale = (float)(delta / Physics.TARGET_FRAMETIME);
 		time.Ticks++;
 
-		var direction = Godot.Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down").Normalized();
+		var direction = Godot.Input.GetVector(UI_LEFT, UI_RIGHT, UI_UP, UI_DOWN).Normalized();
 		if (!direction.IsZeroApprox())
 		{
-			world.Set(new ControllerEvent
-			{
-				Direction = direction
-			});
+			World.Set(new ControllerEvent { Direction = direction });
 		}
 
-		var attackPressed = Godot.Input.IsActionJustPressed("attack");
-		if (attackPressed)
+		if (Godot.Input.IsActionJustPressed(ATTACK))
 		{
-			world.Add<InputAttackCommand>();
+			World.Add<InputAttackCommand>();
 		}
 
-		world.Progress();
+		base._PhysicsProcess(delta);
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton mouse && mouse.IsPressed())
 		{
-			world.Set(new MouseEvent
+			World.Set(new MouseEvent
 			{
 				Button = mouse,
 				Position = ToLocal(GetViewport().GetMousePosition())

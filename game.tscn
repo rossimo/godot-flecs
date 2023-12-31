@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bg3apxxroga6h"]
+[gd_scene load_steps=14 format=3 uid="uid://bg3apxxroga6h"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_1h04g"]
 [ext_resource type="PackedScene" uid="uid://cye3g5vinibl1" path="res://player.tscn" id="2_uug6v"]
@@ -8,55 +8,92 @@
 [ext_resource type="PackedScene" uid="uid://ohaq3e5drxy8" path="res://spider.tscn" id="4_h1u8j"]
 [ext_resource type="PackedScene" uid="uid://c8ndvbjqnxfo4" path="res://fire.tscn" id="5_c1tgr"]
 [ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="6_cmsoj"]
-[ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="7_h8iii"]
-[ext_resource type="Script" path="res://Components/DeleteCommand.cs" id="8_nyl2a"]
 [ext_resource type="Script" path="res://Tools/TargetOther.cs" id="9_aaqpl"]
-[ext_resource type="Script" path="res://Components/FlashCommand.cs" id="10_5iu7t"]
+[ext_resource type="Script" path="res://Components/ColorizeCommand.cs" id="11_id085"]
 [ext_resource type="Script" path="res://Scripts/WanderScript.cs" id="12_k2n8g"]
 
-[sub_resource type="Resource" id="Resource_2bkiq"]
-script = ExtResource("7_h8iii")
+[sub_resource type="Resource" id="Resource_38twx"]
+script = ExtResource("9_aaqpl")
 
 [sub_resource type="Resource" id="Resource_lnpqm"]
 script = ExtResource("9_aaqpl")
 
-[node name="scene" type="Node2D"]
+[node name="Game" type="Node2D"]
 script = ExtResource("1_1h04g")
 
+[node name="fire" parent="." instance=ExtResource("5_c1tgr")]
+position = Vector2(296, 288)
+
+[node name="AreaTrigger" type="Node2D" parent="fire"]
+script = ExtResource("6_cmsoj")
+Target = SubResource("Resource_38twx")
+
+[node name="ColorizeCommand" type="Node" parent="fire/AreaTrigger"]
+script = ExtResource("11_id085")
+Color = Color(1, 0.443137, 0.133333, 1)
+
+[node name="WanderScript" type="Node2D" parent="fire"]
+script = ExtResource("12_k2n8g")
+Radius = 2
+
 [node name="player" parent="." instance=ExtResource("2_uug6v")]
+position = Vector2(100, 100)
 
 [node name="Health" type="Node" parent="player"]
 script = ExtResource("3_lxlls")
 Value = 5
 
-[node name="Player2" type="Node" parent="player"]
+[node name="Player" type="Node" parent="player"]
 script = ExtResource("4_asrmx")
 
-[node name="potion" parent="." instance=ExtResource("3_j0bxk")]
+[node name="greenpotion" parent="." instance=ExtResource("3_j0bxk")]
 
-[node name="AreaTriggerSelf2" type="Node" parent="potion"]
-script = ExtResource("6_cmsoj")
-Target = SubResource("Resource_2bkiq")
-
-[node name="DeleteCommand" type="Node" parent="potion/AreaTriggerSelf2"]
-script = ExtResource("8_nyl2a")
-
-[node name="AreaTriggerOther" type="Node" parent="potion"]
+[node name="AreaTriggerOther" type="Node2D" parent="greenpotion"]
 script = ExtResource("6_cmsoj")
 Target = SubResource("Resource_lnpqm")
 
-[node name="FlashCommand" type="Node" parent="potion/AreaTriggerOther"]
-script = ExtResource("10_5iu7t")
+[node name="Green" type="Node" parent="greenpotion/AreaTriggerOther"]
+script = ExtResource("11_id085")
 Color = Color(0, 0.752941, 0, 1)
 
-[node name="spider" parent="." instance=ExtResource("4_h1u8j")]
-position = Vector2(500, 500)
+[node name="waterpotion" parent="." instance=ExtResource("3_j0bxk")]
+position = Vector2(763, 318)
 
-[node name="Health" type="Node" parent="spider"]
+[node name="AreaTriggerOther" type="Node2D" parent="waterpotion"]
+script = ExtResource("6_cmsoj")
+Target = SubResource("Resource_lnpqm")
+
+[node name="Blue" type="Node" parent="waterpotion/AreaTriggerOther"]
+script = ExtResource("11_id085")
+Color = Color(0, 0.427451, 1, 1)
+
+[node name="healpotion" parent="." instance=ExtResource("3_j0bxk")]
+position = Vector2(1039, 144)
+
+[node name="AreaTriggerOther" type="Node2D" parent="healpotion"]
+script = ExtResource("6_cmsoj")
+Target = SubResource("Resource_lnpqm")
+
+[node name="Pink" type="Node" parent="healpotion/AreaTriggerOther"]
+script = ExtResource("11_id085")
+Color = Color(1, 0.360784, 0.713726, 1)
+
+[node name="spider1" parent="." instance=ExtResource("4_h1u8j")]
+position = Vector2(482, 345)
+
+[node name="Health" type="Node" parent="spider1"]
 script = ExtResource("3_lxlls")
 Value = 2
 
-[node name="WanderScript" type="Node" parent="spider"]
+[node name="WanderScript" type="Node2D" parent="spider1"]
 script = ExtResource("12_k2n8g")
 
-[node name="fire" parent="." instance=ExtResource("5_c1tgr")]
+[node name="spider2" parent="." instance=ExtResource("4_h1u8j")]
+position = Vector2(800, 500)
+
+[node name="Health" type="Node" parent="spider2"]
+script = ExtResource("3_lxlls")
+Value = 2
+
+[node name="WanderScript" type="Node2D" parent="spider2"]
+script = ExtResource("12_k2n8g")

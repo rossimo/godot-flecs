@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://ohaq3e5drxy8"]
+[gd_scene load_steps=6 format=3 uid="uid://ohaq3e5drxy8"]
 
+[ext_resource type="Script" path="res://Tools/Entity2D.cs" id="1_lkxam"]
 [ext_resource type="Script" path="res://Components/Speed.cs" id="1_uqgul"]
-[ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="5_kmxc2"]
+[ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="3_vp44j"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 30.0
@@ -10,14 +11,15 @@ radius = 30.0
 radius = 30.0
 
 [node name="spider" type="Node2D"]
+script = ExtResource("1_lkxam")
 
 [node name="Speed" type="Node" parent="."]
 script = ExtResource("1_uqgul")
-Value = 2.0
+Value = 1.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(4, 4)
-texture = ExtResource("5_kmxc2")
+scale = Vector2(3, 3)
+texture = ExtResource("3_vp44j")
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
 

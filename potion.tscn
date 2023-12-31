@@ -1,5 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://dljljg87n68lw"]
+[gd_scene load_steps=8 format=3 uid="uid://dljljg87n68lw"]
 
+[ext_resource type="Script" path="res://Tools/Entity2D.cs" id="1_iye7q"]
 [ext_resource type="Texture2D" uid="uid://daxlx8en7d4si" path="res://resources/potion.png" id="1_j8rxa"]
 [ext_resource type="Script" path="res://Components/AreaTrigger.cs" id="2_82tac"]
 [ext_resource type="Script" path="res://Tools/TargetSelf.cs" id="5_08at3"]
@@ -13,6 +14,7 @@ script = ExtResource("5_08at3")
 
 [node name="potion" type="Node2D"]
 position = Vector2(416, 133)
+script = ExtResource("1_iye7q")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(2, 2)
@@ -23,7 +25,7 @@ texture = ExtResource("1_j8rxa")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("CircleShape2D_x0uo1")
 
-[node name="AreaTriggerSelf" type="Node" parent="."]
+[node name="AreaTriggerSelf" type="Node2D" parent="."]
 script = ExtResource("2_82tac")
 Target = SubResource("Resource_845te")
 

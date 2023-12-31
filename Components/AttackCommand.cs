@@ -7,7 +7,8 @@ public partial class AttackCommand : Node
     [Export]
     public float Angle;
 
-    public Entity Target;
+    [Export]
+    public ulong TargetID;
 }
 
 public class Attack
@@ -21,11 +22,11 @@ public class Attack
     {
         var swordScene = ResourceLoader.Load<PackedScene>("res://sword.tscn");
 
-        return world.Routine(
-            filter: world.FilterBuilder().Term<AttackCommand>().Term<CharacterBody2D>().NotTrigger(),
-            callback: (Entity entity, ref AttackCommand attack, ref CharacterBody2D body) =>
+        return world.Routine()
+            .Term<AttackCommand>().Term<Entity2D>()
+            .Each((Entity entity, ref AttackCommand attack, ref Entity2D body) =>
             {
-                var lastAttackTick = entity.Has<LastAttack>() 
+                var lastAttackTick = entity.Has<LastAttack>()
                     ? entity.Get<LastAttack>().Ticks
                     : 0;
 
@@ -45,24 +46,22 @@ public class Attack
 
                 var angle = attack.Angle;
 
-                if (attack.Target.IsAlive() && attack.Target.Has<CharacterBody2D>())
+                var target = world.Entity(attack.TargetID);
+                if (target.IsAlive() && target.Has<CharacterBody2D>())
                 {
-                    var targetBody = attack.Target.Get<CharacterBody2D>();
+                    var targetBody = target.Get<CharacterBody2D>();
                     angle = body.GlobalPosition.AngleToPoint(targetBody.GlobalPosition);
                 }
 
                 var arc = (float)(Math.PI / 2);
 
-                var arm = new Node2D();
-                var timer = new TimerCommand() { Millis = (ulong)(duration * 1000) };
+                var arm = new Entity2D();
+                var timer = new Godot.Timer() { WaitTime = duration };
                 timer.AddChild(new DeleteCommand());
                 arm.AddChild(timer);
-                arm.CreateEntity(world);
-
                 arm.Rotation = angle + (float)(Math.PI / 2) - arc / 2;
 
-                var sword = swordScene.Instantiate<Node2D>();
-                sword.CreateEntity(world);
+                var sword = Bootstrap.PrepareNode(swordScene.Instantiate<Entity2D>());
                 sword.Position = new Vector2(0, -65);
 
                 arm.AddChild(sword);

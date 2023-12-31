@@ -1,21 +1,59 @@
-[gd_scene load_steps=4 format=3 uid="uid://cye3g5vinibl1"]
+[gd_scene load_steps=10 format=3 uid="uid://cye3g5vinibl1"]
 
+[ext_resource type="Script" path="res://Tools/Entity2D.cs" id="1_4wvq5"]
 [ext_resource type="Script" path="res://Components/Speed.cs" id="2_lxyv5"]
 [ext_resource type="Texture2D" uid="uid://b1tv2eixc5oao" path="res://resources/player.png" id="3_tdwan"]
+[ext_resource type="Script" path="res://Tools/StateMachine.cs" id="3_x3a11"]
+[ext_resource type="Script" path="res://Tools/State.cs" id="4_ugkav"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fkvev"]
 radius = 30.0
 
+[sub_resource type="Animation" id="Animation_hnhl7"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_om026"]
+resource_name = "new_animation"
+length = 0.8
+loop_mode = 1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.174533, 0.0, -0.174533, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_l6v26"]
+_data = {
+"RESET": SubResource("Animation_hnhl7"),
+"walking": SubResource("Animation_om026")
+}
+
 [node name="player" type="Node2D"]
-position = Vector2(100, 100)
+script = ExtResource("1_4wvq5")
 
 [node name="Speed" type="Node" parent="."]
 script = ExtResource("2_lxyv5")
 Value = 4.0
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(4, 4)
-texture = ExtResource("3_tdwan")
 
 [node name="Area2D" type="Area2D" parent="."]
 collision_layer = 3
@@ -28,3 +66,22 @@ shape = SubResource("CircleShape2D_fkvev")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("CircleShape2D_fkvev")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(3, 3)
+texture = ExtResource("3_tdwan")
+
+[node name="StateMachine" type="Node2D" parent="."]
+script = ExtResource("3_x3a11")
+State = "Idle"
+
+[node name="Idle" type="Node2D" parent="StateMachine"]
+script = ExtResource("4_ugkav")
+
+[node name="Walking" type="Node2D" parent="StateMachine"]
+script = ExtResource("4_ugkav")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="StateMachine/Walking"]
+libraries = {
+"": SubResource("AnimationLibrary_l6v26")
+}

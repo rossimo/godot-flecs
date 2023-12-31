@@ -14,9 +14,9 @@ public class Delete
         };
 
     public static Routine System(World world) =>
-        world.Routine(
-            filter: world.FilterBuilder().Term<DeleteCommand>().NotTrigger(),
-            callback: (Entity entity) =>
+        world.Routine()
+            .Term<DeleteCommand>()
+            .Each((Entity entity) =>
             {
                 entity.Destruct();
             });

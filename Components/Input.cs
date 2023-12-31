@@ -38,12 +38,11 @@ public class Input
 
     public static Routine MouseInput(World world)
     {
-        var players = world.Query(filter: world.FilterBuilder().Term<Player>());
-        var game = world.Get<Game>();
+        var players = world.Query<Player>();
+        var worldNode = world.Get<WorldNode>();
 
-        return world.Routine(
-            filter: world.FilterBuilder().Term<MouseEvent>(),
-            callback: (Entity entity, ref MouseEvent @event) =>
+        return world.Routine().Term<MouseEvent>()
+            .Each((Entity entity, ref MouseEvent @event) =>
             {
                 var position = @event.Position;
 
@@ -65,7 +64,7 @@ public class Input
 
                         case MouseButton.Left:
                             {
-                                var objects = game.GetWorld2D()
+                                var objects = worldNode.GetWorld2D()
                                     .DirectSpaceState
                                     .IntersectPoint(new PhysicsPointQueryParameters2D()
                                     {
@@ -82,15 +81,15 @@ public class Input
                                     if (objects.Count > 0)
                                     {
                                         var body = objects[0]["collider"].As<CharacterBody2D>();
-                                        var target = body.FindEntity(world);
-                                        if (target.IsAlive())
+                                        var target = body.GetEntity(world);
+                                        if (target.IsAlive() && target != player)
                                         {
                                             move.Radius = 100;
                                             move.Target = target;
 
                                             move.AddChild(new AttackCommand()
                                             {
-                                                Target = target
+                                                TargetID = target.Id.Value
                                             });
                                         }
                                     }
@@ -108,12 +107,11 @@ public class Input
 
     public static Routine ControllerInput(World world)
     {
-        var players = world.Query(filter: world.FilterBuilder().Term<Player>());
-        var game = world.Get<Game>();
+        var players = world.Query<Player>();
 
-        return world.Routine(
-            filter: world.FilterBuilder().Term<ControllerEvent>(),
-            callback: (Entity entity, ref ControllerEvent @event) =>
+        return world.Routine()
+            .Term<ControllerEvent>()
+            .Each((Entity entity, ref ControllerEvent @event) =>
             {
                 var direction = @event.Direction;
 
@@ -133,13 +131,13 @@ public class Input
 
     public static Routine ControllerAttack(World world)
     {
-        var bodies = world.Query(filter: world.FilterBuilder().Term<CharacterBody2D>());
-        var players = world.Query(filter: world.FilterBuilder().Term<Player>());
-        var game = world.Get<Game>();
+        var bodies = world.Query<CharacterBody2D>();
+        var players = world.Query<Player>();
+        var game = world.Get<WorldNode>();
 
-        return world.Routine(
-            filter: world.FilterBuilder().Term<InputAttackCommand>(),
-            callback: (Entity entity, ref InputAttackCommand @event) =>
+        return world.Routine()
+            .Term<InputAttackCommand>()
+            .Each((Entity entity, ref InputAttackCommand @event) =>
             {
                 players.Each(player =>
                 {
@@ -147,7 +145,7 @@ public class Input
 
                     var targets = bodies.All<CharacterBody2D>()
                         .Where(body => body.GlobalPosition.DistanceTo(playerBody.GlobalPosition) <= 100)
-                        .Select(body => body.FindEntity(world))
+                        .Select(body => body.GetEntity(world))
                         .Where(target => target.IsAlive() && target != player)
                         .OrderBy(body => body.Has<Health>() ? 0 : 1);
 
@@ -162,7 +160,7 @@ public class Input
 
                         player.Set(new AttackCommand()
                         {
-                            Target = target
+                            TargetID = target.Id.Value
                         });
                         return;
                     }

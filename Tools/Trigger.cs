@@ -1,7 +1,6 @@
 using Godot;
 
-[Many]
-public partial class Trigger : Node
+public partial class Trigger : BootstrapNode2D
 {
     [Export]
     public Target? Target { get; set; } = new TargetSelf();

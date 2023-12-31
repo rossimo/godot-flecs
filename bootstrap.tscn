@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://caq7milq5bf5w"]
+
+[ext_resource type="Script" path="res://Tools/BootstrapNode.cs" id="1_aldbv"]
+[ext_resource type="PackedScene" uid="uid://bg3apxxroga6h" path="res://game.tscn" id="2_nu33x"]
+
+[node name="Bootstrap" type="Node"]
+script = ExtResource("1_aldbv")
+Scene = ExtResource("2_nu33x")

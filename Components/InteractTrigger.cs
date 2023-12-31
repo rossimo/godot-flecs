@@ -22,12 +22,12 @@ public class Interact
 
     public static Observer Setup(World world)
     {
-        var playerQuery = world.Query(filter: world.FilterBuilder().Term<Player>());
+        var playerQuery = world.Query<Player>();
 
-        return world.Observer(
-            filter: world.FilterBuilder<Button>(),
-            observer: world.ObserverBuilder().Event(Ecs.OnSet),
-            callback: (Entity entity, ref Button button) =>
+        return world.Observer()
+            .Term<Button>()
+            .Event(Ecs.OnSet)
+            .Each((Entity entity, ref Button button) =>
             {
                 button.Pressed += () =>
                 {
@@ -41,7 +41,7 @@ public class Interact
                             Radius = DEFAULT_RADIUS,
                             Target = entity,
                         };
-                        
+
                         move.AddChild(new InteractCommand()
                         {
                             Target = entity
@@ -54,9 +54,8 @@ public class Interact
     }
 
     public static Routine System(World world) =>
-        world.Routine(
-        filter: world.FilterBuilder<InteractCommand>(),
-        callback: (Entity entity, ref InteractCommand interact) =>
+        world.Routine<InteractCommand>()
+        .Each((Entity entity, ref InteractCommand interact) =>
         {
             if (interact.Target.IsAlive())
             {
@@ -66,7 +65,8 @@ public class Interact
                 if (position.DistanceTo(destination) <= DEFAULT_RADIUS)
                 {
                     interact.Target.Trigger<InteractTrigger>(entity);
-                    entity.Complete(interact);
+                    interact.Complete(entity);
+                    entity.Remove<InteractCommand>();
                 }
             }
         });

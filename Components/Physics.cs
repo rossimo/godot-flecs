@@ -32,10 +32,9 @@ public class Physics
 		};
 
 	public static Observer TopLevel(World world) =>
-		world.Observer(
-			filter: world.FilterBuilder<CharacterBody2D>(),
-			observer: world.ObserverBuilder().Event(Ecs.OnSet),
-			callback: (ref CharacterBody2D node) =>
+		world.Observer<CharacterBody2D>()
+			.Event(Ecs.OnSet)
+			.Each((ref CharacterBody2D node) =>
 			{
 				var globalPosition = node.GlobalPosition;
 				node.TopLevel = true;
@@ -43,16 +42,13 @@ public class Physics
 			});
 
 	public static Observer Area(World world) =>
-		world.Observer(
-			filter: world.FilterBuilder<Area2D>(),
-			observer: world.ObserverBuilder().Event(Ecs.OnSet),
-			callback: (Entity entity, ref Area2D node) =>
+		world.Observer<Area2D>()
+			.Event(Ecs.OnSet)
+			.Each((Entity entity, ref Area2D node) =>
 			{
-				var game = world.Get<Game>();
-
 				node.AreaEntered += (Area2D otherNode) =>
 				{
-					var other = otherNode.FindEntity(world);
+					var other = otherNode.GetEntity(world);
 
 					entity.Trigger<AreaTrigger>(other);
 
@@ -63,21 +59,17 @@ public class Physics
 				};
 			});
 
+	static NodePath POSITION = new NodePath("position");
+
 	public static Routine Sync(World world) =>
-		world.Routine(
-			filter: world.FilterBuilder().Term<CharacterBody2D>().Term<Node2D>(),
-			callback: (Entity entity, ref CharacterBody2D physics, ref Node2D node) =>
+		world.Routine()
+			.Term<CharacterBody2D>().Term<Entity2D>()
+			.Each((Entity entity, ref CharacterBody2D physics, ref Entity2D node) =>
 		{
-			if (!physics.Position.Equals(node.Position))
+			if (!physics.Position.IsEqualApprox(node.Position))
 			{
-				var target = physics.Position.DistanceTo(node.Position);
-				var speed = entity.Has<Speed>() ? entity.Get<Speed>().Value : 1;
-				var normal = speed * SPEED_SCALE;
-
-				var ratio = Math.Min(target / normal, 1);
-
 				var tween = node.CreateTween();
-				tween.TweenProperty(node, "position", physics.Position, TARGET_FRAMETIME * ratio);
+				tween.TweenProperty(node, POSITION, physics.Position, TARGET_FRAMETIME);
 			}
 		});
 }
