@@ -5,7 +5,7 @@ Nodes and components are kept in sync between the Godot Scene Tree, and the Flec
 
 ![Screenshot](Capture.PNG)
 
-##s# C# Script Example
+### C# Script Example
 ```cs
 public partial class Game : WorldNode
 {
