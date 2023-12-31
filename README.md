@@ -13,7 +13,7 @@ public partial class Game : WorldNode
   {
     base._Ready();
 
-    // movement system matches on Sprite2D componets automatically discovered by Entity2D,
+    // movement system matches on Sprite2D componets automatically discovered by Entity2D
     // and Movement components added by input detection
     World.Routine<Movement, Sprite2D>()
       .Each((Entity entity, ref Movement movement, ref Sprite2D sprite) =>
