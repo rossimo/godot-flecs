@@ -13,8 +13,8 @@ public partial class Game : WorldNode
 	{
 		base._Ready();
 
-        // movement system matches on Sprite2D componets automatically discovered by Entity2D,
-        // and Movement components added by input detection
+		// movement system matches on Sprite2D componets automatically discovered by Entity2D,
+		// and Movement components added by input detection
 		World.Routine<Movement, Sprite2D>()
             .Each((Entity entity, ref Movement movement, ref Sprite2D sprite) =>
             {
@@ -32,7 +32,7 @@ public partial class Game : WorldNode
 
 		if (!direction.IsZeroApprox())
 		{
-            // gets the Flecs `Entity` associated with the node named "Player"
+			// gets the Flecs `Entity` associated with the node named "Player"
 			GetNode("Player")
                 .GetEntity(World)
                 .Set(new Movement { Direction = direction });
@@ -54,10 +54,10 @@ public partial class Movement : Node2D
 [ext_resource type="Script" path="res://Tools/Entity2D.cs" id="2"]
 [ext_resource type="Texture2D" uid="uid://textureuid" path="res://icon.svg" id="3"]
 
-[node name="Game" type="1"]
+[node name="Game" type="Node2D"]
 script = ExtResource("1")
 
-[node name="Player" type="Node2D"]
+[node name="Player" type="Node2D" parent="Game"]
 script = ExtResource("2")
 
 [node name="Sprite2D" type="Sprite2D" parent="Player"]
@@ -79,7 +79,7 @@ godot
 ```
 
 ## Example
-This project is a Godot project, so you can open it in Godot and run it. The example is a simple game where you control a player with mouse. The potions and fire entities will invoke `AreaTrigger` components, while the spiders will follow the `WanderScript` scripting.
+This project is a Godot project, so you can open it in Godot and run it. The example is a simple game where you control a player with mouse, with a few sample systems. The potions and fire entities will invoke `AreaTrigger` components, while the spiders will follow the `WanderScript` scripting.
 
 ## Super-Duper Pre-Alpha
 This framework is in a very early stage. It's not ready for production use. I'm totally open to API changes and feedback.
