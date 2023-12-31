@@ -9,35 +9,36 @@ Nodes and components are kept in sync between the Godot Scene Tree, and the Flec
 ```cs
 public partial class Game : WorldNode
 {
-	public override void _Ready()
-	{
-		base._Ready();
+  public override void _Ready()
+  {
+    base._Ready();
 
-		// movement system matches on Sprite2D componets automatically discovered by Entity2D,
-		// and Movement components added by input detection
-		World.Routine<Movement, Sprite2D>()
-            .Each((Entity entity, ref Movement movement, ref Sprite2D sprite) =>
-            {
-                sprite.Position += movement.Direction * 10;
+    // movement system matches on Sprite2D componets automatically discovered by Entity2D,
+    // and Movement components added by input detection
+    World.Routine<Movement, Sprite2D>()
+      .Each((Entity entity, ref Movement movement, ref Sprite2D sprite) =>
+      {
+        sprite.Position += movement.Direction * 10;
+        entity.Remove<Movement>();
+      });
+  }
 
-                entity.Remove<Movement>();
-            });
-	}
+  public override void _PhysicsProcess(double delta)
+  {
+    base._PhysicsProcess(delta);
 
-	public override void _PhysicsProcess(double delta)
-	{
-		var direction = Godot.Input
-            .GetVector("ui_left", "ui_right", "ui_up", "ui_down")
-            .Normalized();
+    var direction = Godot.Input
+      .GetVector("ui_left", "ui_right", "ui_up", "ui_down")
+      .Normalized();
 
-		if (!direction.IsZeroApprox())
-		{
-			// gets the Flecs `Entity` associated with the node named "Player"
-			GetNode("Player")
-                .GetEntity(World)
-                .Set(new Movement { Direction = direction });
-		}
-	}
+    if (!direction.IsZeroApprox())
+    {
+      // gets the Flecs `Entity` associated with the node named "Player"
+      GetNode("Player")
+        .GetEntity(World)
+        .Set(new Movement { Direction = direction });
+    }
+  }
 }
 
 public partial class Movement : Node2D
