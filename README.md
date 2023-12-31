@@ -3,7 +3,7 @@ A (slightly) opinionated ECS for Godot C#. Core prinicples are providing `Entity
 
 Nodes and components are kept in sync between the Godot Scene Tree, and the Flecs World. This means that you can use the Godot Editor to create and edit your game, and then use Flecs to add logic to your game. Adding a child node to an `Entity2D` will automatically add a component to the entity. Removing a child node will remove the component. Starting from Flecs also works, i.e., adding an unparented `Node` as a component will add it to the Godot Scene Tree.
 
-![](./Capture.png)
+![](Capture.png)
 
 Game
 ```cs
