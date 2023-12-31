@@ -21,6 +21,16 @@ script = ExtResource("9_aaqpl")
 [node name="Game" type="Node2D"]
 script = ExtResource("1_1h04g")
 
+[node name="player" parent="." instance=ExtResource("2_uug6v")]
+position = Vector2(100, 100)
+
+[node name="Health" type="Node" parent="player"]
+script = ExtResource("3_lxlls")
+Value = 5
+
+[node name="Player" type="Node" parent="player"]
+script = ExtResource("4_asrmx")
+
 [node name="fire" parent="." instance=ExtResource("5_c1tgr")]
 position = Vector2(296, 288)
 
@@ -35,16 +45,6 @@ Color = Color(1, 0.443137, 0.133333, 1)
 [node name="WanderScript" type="Node2D" parent="fire"]
 script = ExtResource("12_k2n8g")
 Radius = 2
-
-[node name="player" parent="." instance=ExtResource("2_uug6v")]
-position = Vector2(100, 100)
-
-[node name="Health" type="Node" parent="player"]
-script = ExtResource("3_lxlls")
-Value = 5
-
-[node name="Player" type="Node" parent="player"]
-script = ExtResource("4_asrmx")
 
 [node name="greenpotion" parent="." instance=ExtResource("3_j0bxk")]
 
