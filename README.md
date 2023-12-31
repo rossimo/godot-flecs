@@ -76,3 +76,5 @@ dotnet build
 godot
 ```
 
+## Example
+This project is a Godot project, so you can open it in Godot and run it. The example is a simple game where you control a player with mouse. The potions and fire entities will invoke `AreaTrigger` components, while the spiders will follow the `WanderScript` scripting.
