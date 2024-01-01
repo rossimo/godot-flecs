@@ -12,6 +12,8 @@ public partial class WorldNode : Node2D
 
         World = World.Create();
 
+        World.Set(new TaskCompletionSource());
+
         Interop.Observers(World);
 
         World.Set(this);
@@ -29,5 +31,8 @@ public partial class WorldNode : Node2D
         base._PhysicsProcess(delta);
 
         World.Progress();
+
+        World.Get<TaskCompletionSource>().SetResult();
+        World.Set(new TaskCompletionSource());
     }
 }

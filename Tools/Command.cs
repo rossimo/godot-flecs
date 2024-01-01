@@ -1,6 +1,5 @@
 using Godot;
 using Flecs.NET.Core;
-using System.ComponentModel.Design;
 
 public partial class Command : BootstrapNode2D
 {

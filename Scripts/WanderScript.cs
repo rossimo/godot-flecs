@@ -19,14 +19,18 @@ public partial class WanderScript : Script
 			var theta = random.Within(2d * Math.PI);
 			var radius = random.Within(Radius / 2, Radius);
 
-			await entity.Command(new MoveCommand()
+			try
 			{
-				Position = new Vector2()
+				await entity.Command(new MoveCommand()
 				{
-					X = Convert.ToSingle(originX + radius * Math.Cos(theta)),
-					Y = Convert.ToSingle(originY + radius * Math.Sin(theta)),
-				}
-			});
+					Position = new Vector2()
+					{
+						X = Convert.ToSingle(originX + radius * Math.Cos(theta)),
+						Y = Convert.ToSingle(originY + radius * Math.Sin(theta)),
+					}
+				});
+			}
+			catch (ComponentRemovedException) { }
 		}
 	}
 }

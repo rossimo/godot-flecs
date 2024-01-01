@@ -169,8 +169,6 @@ public static class Interop
 
     public static void Observers(World world)
     {
-        TaskSystem(world);
-
         world.Observer()
             .Term<Native.EcsComponent>()
             .Event(Ecs.OnSet)
@@ -223,28 +221,6 @@ public static class Interop
                 RunScript<S>(entity, script);
             });
     }
-
-    public static Routine TaskSystem(this World world) =>
-        world.Routine()
-            .Term<TaskCompletionSource>()
-            .NoReadonly()
-            .Each((Entity entity, ref TaskCompletionSource promise) =>
-            {
-                entity.Remove<TaskCompletionSource>();
-
-                world.DeferSuspend();
-                try
-                {
-                    if (!promise.Task.IsCompleted)
-                    {
-                        promise.SetResult();
-                    }
-                }
-                finally
-                {
-                    world.DeferResume();
-                }
-            });
 
     static async void RunScript<S>(Entity entity, S script) where S : Script
     {

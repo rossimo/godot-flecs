@@ -98,26 +98,9 @@ public static class Async
 
     public static Task ImmediateAsync(this Entity entity)
     {
-        var world = entity.CsWorld();
-
-        if (!world.IsDeferred() && !world.IsReadOnly())
-        {
-            return Task.CompletedTask;
-        }
-
-        TaskCompletionSource source;
-
-        if (world.Has<TaskCompletionSource>())
-        {
-            source = world.Get<TaskCompletionSource>();
-        }
-        else
-        {
-            source = new TaskCompletionSource();
-            world.Set(source);
-        }
-
-        return source.Task;
+        return entity.CsWorld()
+            .Get<TaskCompletionSource>()
+            .Task;
     }
 
     public static async Task OnChangeAsync<C>(Entity entity, C component, TaskCompletionSource? promise = null)
