@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://ohaq3e5drxy8"]
+[gd_scene load_steps=7 format=3 uid="uid://ohaq3e5drxy8"]
 
 [ext_resource type="Script" path="res://Tools/Entity2D.cs" id="1_lkxam"]
 [ext_resource type="Script" path="res://Components/Speed.cs" id="1_uqgul"]
 [ext_resource type="Texture2D" uid="uid://b78g1y5vj2q35" path="res://resources/spider.png" id="3_vp44j"]
+[ext_resource type="Script" path="res://Components/Enemy.cs" id="4_vbgst"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wr2re"]
 radius = 30.0
@@ -16,6 +17,9 @@ script = ExtResource("1_lkxam")
 [node name="Speed" type="Node" parent="."]
 script = ExtResource("1_uqgul")
 Value = 1.0
+
+[node name="Enemy" type="Node" parent="."]
+script = ExtResource("4_vbgst")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(3, 3)

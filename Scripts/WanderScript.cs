@@ -30,7 +30,28 @@ public partial class WanderScript : Script
 					}
 				});
 			}
-			catch (CollisionException) { }
+			catch (CollisionException collision)
+			{
+				if (collision.Other.IsAlive())
+				{
+					var other = collision.Other;
+
+					if (other.Has<Player>())
+					{
+						await Task.WhenAll(
+							entity.SetAsync(new Talk() { Text = "Outta my way!" }),
+							other.SetAsync(new Talk() { Text = "Ah!" }));
+					}
+					else if (entity.Has<Enemy>() && other.Has<Enemy>())
+					{
+						var enemies = new[] { entity, other }.OrderBy(a => random.Next()).ToList();
+
+						await Task.WhenAll(
+							enemies[0].SetAsync(new Talk() { Text = "Pardon me" }),
+							enemies[1].SetAsync(new Talk() { Text = "Excuse me" }));
+					}
+				}
+			}
 		}
 	}
 }

@@ -15,7 +15,17 @@ public partial class Move : Command
 
 public class CollisionException : Exception
 {
+    public Entity Other;
 
+    public CollisionException()
+    {
+
+    }
+
+    public CollisionException(Entity other)
+    {
+        Other = other;
+    }
 }
 
 public class Moves
@@ -93,15 +103,14 @@ public class Moves
                     move.Invoke(entity);
                     entity.Remove<Move>();
                 }
-                else if (collision != null)
-                {
-                    move.SetException(new CollisionException());
-                    entity.Remove<Move>();
-                }
 
                 if (collision != null)
                 {
                     var other = collision.GetCollider().GetEntity(world);
+
+                    move.SetException(new CollisionException(other));
+                    entity.Remove<Move>();
+
                     entity.Trigger<CollisionTrigger>(other);
 
                     if (other.IsValid())

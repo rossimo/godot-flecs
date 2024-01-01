@@ -87,9 +87,10 @@ Value = 2
 
 [node name="WanderScript" type="Node2D" parent="spider1"]
 script = ExtResource("12_k2n8g")
+Radius = 100
 
 [node name="spider2" parent="." instance=ExtResource("4_h1u8j")]
-position = Vector2(800, 500)
+position = Vector2(544, 416)
 
 [node name="Health" type="Node" parent="spider2"]
 script = ExtResource("3_lxlls")
@@ -97,3 +98,4 @@ Value = 2
 
 [node name="WanderScript" type="Node2D" parent="spider2"]
 script = ExtResource("12_k2n8g")
+Radius = 100
