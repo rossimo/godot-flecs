@@ -229,12 +229,13 @@ public static class Interop
             await script.Run(entity);
 
             script.Complete(entity);
-            script.QueueFree();
         }
         catch (Exception exception)
         {
-            if ((exception is not DeadEntityException) &&
-                (exception is not ScriptRemovedException))
+            if (((exception is DeadEntityException entityEx && entityEx.Entity.Id.Value != entity.Id.Value)
+                    || exception is not DeadEntityException) &&
+                ((exception is ScriptRemovedException scriptEx && scriptEx.Entity.Id.Value != entity.Id.Value)
+                    || exception is not ScriptRemovedException))
             {
                 GD.PrintErr(exception);
             }

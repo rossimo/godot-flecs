@@ -54,7 +54,7 @@ public class Input
                             {
                                 players.Each(player =>
                                 {
-                                    player.Set(new MoveCommand
+                                    player.Set(new Move
                                     {
                                         Position = position
                                     });
@@ -73,7 +73,7 @@ public class Input
 
                                 players.Each(player =>
                                 {
-                                    var move = new MoveCommand
+                                    var move = new Move
                                     {
                                         Position = position,
                                     };
@@ -119,7 +119,7 @@ public class Input
                 {
                     var body = player.Get<CharacterBody2D>();
 
-                    player.Set(new MoveCommand
+                    player.Set(new Move
                     {
                         Position = body.Position + (direction * 10)
                     });

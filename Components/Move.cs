@@ -2,10 +2,10 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class MoveCommand : Command
+public partial class Move : Command
 {
     [Export]
-    public Vector2 Position;
+    public Vector2 Position = Vector2.Zero;
 
     [Export]
     public float Radius = 0;
@@ -13,7 +13,12 @@ public partial class MoveCommand : Command
     public Entity Target;
 }
 
-public class Move
+public class CollisionException : Exception
+{
+
+}
+
+public class Moves
 {
     public static IEnumerable<Routine> Systems(World world) =>
         new[] {
@@ -22,8 +27,8 @@ public class Move
         };
 
     public static Routine PositionToTarget(World world) =>
-        world.Routine<MoveCommand>()
-        .Each((ref MoveCommand move) =>
+        world.Routine<Move>()
+        .Each((ref Move move) =>
             {
                 if (move.Target.IsAlive() && move.Target.Has<CharacterBody2D>())
                 {
@@ -32,8 +37,8 @@ public class Move
             });
 
     public static Routine MoveAndCollide(World world) =>
-        world.Routine<MoveCommand, CharacterBody2D, Speed>()
-            .Each((Entity entity, ref MoveCommand move, ref CharacterBody2D body, ref Speed speed) =>
+        world.Routine<Move, CharacterBody2D, Speed>()
+            .Each((Entity entity, ref Move move, ref CharacterBody2D body, ref Speed speed) =>
             {
                 entity.Set(new LastIntent()
                 {
@@ -47,7 +52,7 @@ public class Move
                     if (distance <= move.Radius)
                     {
                         move.Complete(entity);
-                        entity.Remove<MoveCommand>();
+                        entity.Remove<Move>();
                         return;
                     }
                 }
@@ -86,11 +91,12 @@ public class Move
                 if (body.Position.IsEqualApprox(move.Position))
                 {
                     move.Complete(entity);
-                    entity.Remove<MoveCommand>();
+                    entity.Remove<Move>();
                 }
                 else if (collision != null)
                 {
-                    entity.Remove<MoveCommand>();
+                    move.SetException(new CollisionException());
+                    entity.Remove<Move>();
                 }
 
                 if (collision != null)

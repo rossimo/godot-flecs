@@ -21,7 +21,7 @@ public partial class WanderScript : Script
 
 			try
 			{
-				await entity.Command(new MoveCommand()
+				await entity.Task(new Move()
 				{
 					Position = new Vector2()
 					{
@@ -30,7 +30,7 @@ public partial class WanderScript : Script
 					}
 				});
 			}
-			catch (ComponentRemovedException) { }
+			catch (CollisionException) { }
 		}
 	}
 }

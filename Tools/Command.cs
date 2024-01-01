@@ -1,17 +1,13 @@
 using Godot;
 using Flecs.NET.Core;
 
-public partial class Command : BootstrapNode2D
+public partial class Command : BootstrapNode2D, ITask
 {
-    public readonly TaskCompletionSource Promise = new TaskCompletionSource();
+    public readonly TaskCompletionSource _Promise = new TaskCompletionSource();
 
-    public Task Task
-    {
-        get
-        {
-            return Promise.Task;
-        }
-    }
+    public TaskCompletionSource Promise { get => _Promise; }
+
+    public Task Task { get => Promise.Task; }
 
     public override void Complete(Entity entity)
     {
@@ -21,6 +17,11 @@ public partial class Command : BootstrapNode2D
         {
             Promise.SetResult();
         }
+    }
+
+    public  void SetException(Exception exception)
+    {
+        Promise.SetException(exception);
     }
 }
 

@@ -24,7 +24,7 @@ public partial class Game : WorldNode
 		Interact.Systems(World);
 		Flash.Systems(World);
 		Colorize.Systems(World);
-		Move.Systems(World);
+		Moves.Systems(World);
 		Physics.Systems(World);
 		Delete.Systems(World);
 	}

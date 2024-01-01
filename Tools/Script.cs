@@ -1,4 +1,3 @@
-using Godot;
 using Flecs.NET.Core;
 
 public static class Async
@@ -89,7 +88,7 @@ public static class Async
         entity.Remove<C>();
     }
 
-    public static async Task Command<C>(this Entity entity, C component) where C : Command
+    public static async Task Task<C>(this Entity entity, C component) where C : ITask
     {
         await SetAsync(entity, component, component.Promise);
 
@@ -119,7 +118,7 @@ public static class Async
         var set = OnSetAsync<C>(entity, promise);
         var remove = OnRemoveAsync<C>(entity, promise);
 
-        return Task.WhenAny(set, remove);
+        return System.Threading.Tasks.Task.WhenAny(set, remove);
     }
 }
 
@@ -142,7 +141,7 @@ public partial class Script : BootstrapNode2D
             {
                 if (!promise.Task.IsCompleted)
                 {
-                    promise.SetException(new ScriptRemovedException());
+                    promise.SetException(new ScriptRemovedException(entity));
                 }
             }
         );
@@ -197,14 +196,20 @@ public partial class Script : BootstrapNode2D
 
 public class DeadEntityException : Exception
 {
+    public readonly Entity Entity;
+
     public DeadEntityException(Entity entity) : base($"Entity is not alive")
     {
+        Entity = entity;
     }
 }
 
 public class ScriptRemovedException : Exception
 {
-    public ScriptRemovedException() : base($"Script has been removed")
+    public readonly Entity Entity;
+
+    public ScriptRemovedException(Entity entity) : base($"Script has been removed")
     {
+        Entity = entity;
     }
 }

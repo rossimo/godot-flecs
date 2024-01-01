@@ -35,7 +35,7 @@ public class Interact
 
                     foreach (var player in playerQuery.All())
                     {
-                        var move = new MoveCommand()
+                        var move = new Move()
                         {
                             Position = entity.Get<Node2D>().GlobalPosition,
                             Radius = DEFAULT_RADIUS,
