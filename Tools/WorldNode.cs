@@ -23,6 +23,8 @@ public partial class WorldNode : Node2D
     {
         base._ExitTree();
 
+        World.Add<Destructing>();
+
         World.Dispose();
     }
 

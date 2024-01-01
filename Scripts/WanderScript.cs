@@ -5,7 +5,7 @@ using Flecs.NET.Core;
 public partial class WanderScript : Script
 {
 	[Export]
-	public int Radius = 200;
+	public int Radius { get; set; } = 200;
 
 	public async override Task Run(Entity entity)
 	{

@@ -3,14 +3,17 @@ using Godot;
 [GlobalClass, Icon("res://resources/tools/component.png")]
 public partial class BootstrapNode : Node
 {
-
 	[Export]
-	public PackedScene Scene { get; set; }
+	public PackedScene? Scene { get; set; } = null;
 
 	public override void _Ready()
 	{
 		QueueFree();
-		GetTree().Root.CallDeferred("add_child", Bootstrap.PrepareNode(Scene.Instantiate()));
+
+		if (Scene != null)
+		{
+			GetTree().Root.CallDeferred("add_child", Bootstrap.PrepareNode(Scene.Instantiate()));
+		}
 	}
 }
 

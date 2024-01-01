@@ -18,6 +18,6 @@ public class Delete
             .Term<DeleteCommand>()
             .Each((Entity entity) =>
             {
-                entity.Destruct();
+                entity.DestructSafely();
             });
 }

@@ -19,7 +19,7 @@ public static class Interop
 
         node.TreeExiting += () =>
         {
-            entity.Destruct();
+            entity.DestructSafely();
         };
 
         entity.SetNode(node);
@@ -224,6 +224,7 @@ public static class Interop
 
     static async void RunScript<S>(Entity entity, S script) where S : Script
     {
+        var world = entity.CsWorld();
         try
         {
             await script.Run(entity);
@@ -235,7 +236,9 @@ public static class Interop
             if (((exception is DeadEntityException entityEx && entityEx.Entity.Id.Value != entity.Id.Value)
                     || exception is not DeadEntityException) &&
                 ((exception is ScriptRemovedException scriptEx && scriptEx.Entity.Id.Value != entity.Id.Value)
-                    || exception is not ScriptRemovedException))
+                    || exception is not ScriptRemovedException) &&
+                !(entity.IsAlive() && entity.Has<Destructing>()) &&
+                !world.Has<Destructing>())
             {
                 GD.PrintErr(exception);
             }
@@ -343,6 +346,13 @@ public static class Interop
         return null;
     }
 
+
+    public static void DestructSafely(this Entity entity)
+    {
+        entity.Add<Destructing>();
+        entity.Destruct();
+    }
+
     public static void AssertAlive(this Entity entity)
     {
         if (!entity.IsValid() || !entity.IsAlive())
@@ -375,3 +385,5 @@ public static class Interop
         return components;
     }
 }
+
+public struct Destructing;

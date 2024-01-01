@@ -5,7 +5,7 @@ using Flecs.NET.Core;
 public partial class Move : Command
 {
     [Export]
-    public Vector2 Position = Vector2.Zero;
+    public new Vector2 Position = Vector2.Zero;
 
     [Export]
     public float Radius = 0;
