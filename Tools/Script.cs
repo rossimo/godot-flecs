@@ -89,6 +89,13 @@ public static class Async
         entity.Remove<C>();
     }
 
+    public static async Task Command<C>(this Entity entity, C component) where C : Command
+    {
+        await SetAsync(entity, component, component.Promise);
+
+        await component.Task;
+    }
+
     public static Task ImmediateAsync(this Entity entity)
     {
         var world = entity.CsWorld();

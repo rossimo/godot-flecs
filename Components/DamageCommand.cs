@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class DamageCommand : BootstrapNode2D
+public partial class DamageCommand : Command
 {
     [Export]
     public int Value { get; set; } = 0;

@@ -284,6 +284,11 @@ public static class Interop
                     GD.Print($"{entity} remove {component.GetType()}");
                 }
 
+                if (component is Command command && !command.Promise.Task.IsCompleted)
+                {
+                    command.Promise.SetException(new ComponentRemovedException());
+                }
+
                 if (GDScript.IsInstanceValid(component))
                 {
                     component.QueueFree();

@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class AttackCommand : Node
+public partial class AttackCommand : Command
 {
     [Export]
     public float Angle;

@@ -29,5 +29,5 @@ shape = SubResource("CircleShape2D_x0uo1")
 script = ExtResource("2_82tac")
 Target = SubResource("Resource_845te")
 
-[node name="DeleteCommand" type="Node" parent="AreaTriggerSelf"]
+[node name="DeleteCommand" type="Node2D" parent="AreaTriggerSelf"]
 script = ExtResource("6_cdcgi")

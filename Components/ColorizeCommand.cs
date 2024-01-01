@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class ColorizeCommand : Node
+public partial class ColorizeCommand : Command
 {
 	[Export]
 	public Color Color { get; set; }

@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class MoveCommand : BootstrapNode2D
+public partial class MoveCommand : Command
 {
     [Export]
     public Vector2 Position;

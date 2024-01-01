@@ -2,7 +2,7 @@ using Godot;
 using Flecs.NET.Core;
 
 [GlobalClass, Icon("res://resources/tools/command.png")]
-public partial class DeleteCommand : Node
+public partial class DeleteCommand : Node2D
 {
 }
 

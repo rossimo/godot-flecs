@@ -38,7 +38,7 @@ position = Vector2(296, 288)
 script = ExtResource("6_cmsoj")
 Target = SubResource("Resource_38twx")
 
-[node name="ColorizeCommand" type="Node" parent="fire/AreaTrigger"]
+[node name="ColorizeCommand" type="Node2D" parent="fire/AreaTrigger"]
 script = ExtResource("11_id085")
 Color = Color(1, 0.443137, 0.133333, 1)
 
@@ -52,7 +52,7 @@ Radius = 2
 script = ExtResource("6_cmsoj")
 Target = SubResource("Resource_lnpqm")
 
-[node name="Green" type="Node" parent="greenpotion/AreaTriggerOther"]
+[node name="Green" type="Node2D" parent="greenpotion/AreaTriggerOther"]
 script = ExtResource("11_id085")
 Color = Color(0, 0.752941, 0, 1)
 
@@ -63,7 +63,7 @@ position = Vector2(763, 318)
 script = ExtResource("6_cmsoj")
 Target = SubResource("Resource_lnpqm")
 
-[node name="Blue" type="Node" parent="waterpotion/AreaTriggerOther"]
+[node name="Blue" type="Node2D" parent="waterpotion/AreaTriggerOther"]
 script = ExtResource("11_id085")
 Color = Color(0, 0.427451, 1, 1)
 
@@ -74,7 +74,7 @@ position = Vector2(1039, 144)
 script = ExtResource("6_cmsoj")
 Target = SubResource("Resource_lnpqm")
 
-[node name="Pink" type="Node" parent="healpotion/AreaTriggerOther"]
+[node name="Pink" type="Node2D" parent="healpotion/AreaTriggerOther"]
 script = ExtResource("11_id085")
 Color = Color(1, 0.360784, 0.713726, 1)
 

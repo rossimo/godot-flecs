@@ -19,7 +19,7 @@ public partial class WanderScript : Script
 			var theta = random.Within(2d * Math.PI);
 			var radius = random.Within(Radius / 2, Radius);
 
-			await OnChangeAsync<WanderScript, MoveCommand>(entity, new MoveCommand()
+			await entity.Command(new MoveCommand()
 			{
 				Position = new Vector2()
 				{

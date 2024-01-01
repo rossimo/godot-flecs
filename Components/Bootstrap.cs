@@ -7,12 +7,12 @@ public partial class BootstrapNode2D : Node2D, IBootstrap, IComplete
 
     public void Bootstrap()
     {
-        foreach (var state in GetChildren())
+        foreach (var child in GetChildren())
         {
-            Components.Add(state.Duplicate());
+            Components.Add(child.Duplicate());
 
-            state.QueueFree();
-            RemoveChild(state);
+            child.QueueFree();
+            RemoveChild(child);
         }
 
         SetMeta("bootstrap", true);
@@ -34,7 +34,7 @@ public partial class BootstrapNode2D : Node2D, IBootstrap, IComplete
         }
     }
 
-    public void Complete(Entity entity)
+    public virtual void Complete(Entity entity)
     {
         foreach (var component in Components)
         {
@@ -46,9 +46,9 @@ public partial class BootstrapNode2D : Node2D, IBootstrap, IComplete
     {
         base.Dispose(disposing);
 
-        foreach (var item in Components)
+        foreach (var component in Components)
         {
-            item.Free();
+            component.Free();
         }
 
         Components.Clear();
