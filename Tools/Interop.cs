@@ -155,13 +155,13 @@ public static class Interop
         switch (trigger.Target)
         {
             case TargetSelf:
-                trigger.Complete(self);
+                trigger.Invoke(self);
                 break;
 
             case TargetOther:
                 if (other.IsAlive())
                 {
-                    trigger.Complete(other);
+                    trigger.Invoke(other);
                 }
                 break;
         }
@@ -228,7 +228,7 @@ public static class Interop
         {
             await script.Run(entity);
 
-            script.Complete(entity);
+            script.Invoke(entity);
         }
         catch (Exception exception)
         {

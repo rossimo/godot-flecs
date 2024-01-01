@@ -51,7 +51,7 @@ public class Moves
 
                     if (distance <= move.Radius)
                     {
-                        move.Complete(entity);
+                        move.Invoke(entity);
                         entity.Remove<Move>();
                         return;
                     }
@@ -90,7 +90,7 @@ public class Moves
 
                 if (body.Position.IsEqualApprox(move.Position))
                 {
-                    move.Complete(entity);
+                    move.Invoke(entity);
                     entity.Remove<Move>();
                 }
                 else if (collision != null)

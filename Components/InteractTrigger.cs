@@ -65,7 +65,7 @@ public class Interact
                 if (position.DistanceTo(destination) <= DEFAULT_RADIUS)
                 {
                     interact.Target.Trigger<InteractTrigger>(entity);
-                    interact.Complete(entity);
+                    interact.Invoke(entity);
                     entity.Remove<InteractCommand>();
                 }
             }

@@ -1,7 +1,7 @@
 using Godot;
 using Flecs.NET.Core;
 
-public partial class BootstrapNode2D : Node2D, IBootstrap, IComplete
+public partial class BootstrapNode2D : Node2D, IBootstrap, IInvoke
 {
     public List<Node> Components = new List<Node>();
 
@@ -34,7 +34,7 @@ public partial class BootstrapNode2D : Node2D, IBootstrap, IComplete
         }
     }
 
-    public virtual void Complete(Entity entity)
+    public virtual void Invoke(Entity entity)
     {
         foreach (var component in Components)
         {

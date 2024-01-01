@@ -38,7 +38,7 @@ public class Damage
                     entity.Set(new DeleteCommand());
                 }
 
-                damage.Complete(entity);
+                damage.Invoke(entity);
                 entity.Remove<DamageCommand>();
             });
 

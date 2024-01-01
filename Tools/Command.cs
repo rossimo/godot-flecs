@@ -9,9 +9,9 @@ public partial class Command : BootstrapNode2D, ITask
 
     public Task Task { get => Promise.Task; }
 
-    public override void Complete(Entity entity)
+    public override void Invoke(Entity entity)
     {
-        base.Complete(entity);
+        base.Invoke(entity);
 
         if (!Promise.Task.IsCompleted)
         {
