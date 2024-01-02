@@ -8,13 +8,13 @@ public partial class FlashScript : Script
 	{
 		while (true)
 		{
-			await SetAsync<FlashScript, FlashCommand>(entity, new FlashCommand { Color = Colors.Red });
+			entity.Set(new FlashCommand { Color = Colors.Red });
 			await GetTree().ToSignal(GetTree().CreateTimer(1), "timeout");
 
-			await SetAsync<FlashScript, FlashCommand>(entity, new FlashCommand { Color = Colors.Green });
+			entity.Set(new FlashCommand { Color = Colors.Green });
 			await GetTree().ToSignal(GetTree().CreateTimer(1), "timeout");
 
-			await SetAsync<FlashScript, FlashCommand>(entity, new FlashCommand { Color = Colors.Blue });
+			entity.Set(new FlashCommand { Color = Colors.Blue });
 			await GetTree().ToSignal(GetTree().CreateTimer(1), "timeout");
 		}
 	}

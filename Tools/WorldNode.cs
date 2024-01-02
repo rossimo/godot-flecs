@@ -12,7 +12,7 @@ public partial class WorldNode : Node2D
 
         World = World.Create();
 
-        World.Set(new TaskCompletionSource());
+        World.Set(new Tasks());
 
         Interop.Observers(World);
 
@@ -34,7 +34,21 @@ public partial class WorldNode : Node2D
 
         World.Progress();
 
-        World.Get<TaskCompletionSource>().SetResult();
-        World.Set(new TaskCompletionSource());
+        World.Get<Tasks>().Iterate();
+    }
+}
+
+public class Tasks
+{
+    public List<Command> Commands = new List<Command>();
+
+    public void Iterate()
+    {
+        foreach (var command in Commands)
+        {
+            command.TryNotify();
+        }
+
+        Commands.Clear();
     }
 }

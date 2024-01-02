@@ -19,8 +19,8 @@ public class Flash
         world.Routine<Entity2D, FlashCommand>()
             .Each((Entity entity, ref Entity2D entity2d, ref FlashCommand flash) =>
             {
-                flash.Invoke(entity);
                 entity.Remove<FlashCommand>();
+                flash.Invoke(entity);
 
                 entity2d.Modulate = new Color(flash.Color);
 

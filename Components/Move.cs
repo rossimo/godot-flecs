@@ -38,7 +38,7 @@ public class Moves
 
     public static Routine PositionToTarget(World world) =>
         world.Routine<Move>()
-        .Each((ref Move move) =>
+            .Each((ref Move move) =>
             {
                 if (move.Target.IsAlive() && move.Target.Has<CharacterBody2D>())
                 {
@@ -46,8 +46,9 @@ public class Moves
                 }
             });
 
-    public static Routine MoveAndCollide(World world) =>
-        world.Routine<Move, CharacterBody2D, Speed>()
+    public static Routine MoveAndCollide(World world)
+    {
+        var routine = world.Routine<Move, CharacterBody2D, Speed>()
             .Each((Entity entity, ref Move move, ref CharacterBody2D body, ref Speed speed) =>
             {
                 entity.Set(new LastIntent()
@@ -61,30 +62,16 @@ public class Moves
 
                     if (distance <= move.Radius)
                     {
-                        move.Invoke(entity);
-                        entity.Remove<Move>();
+                        entity.Success(move);
                         return;
                     }
                 }
 
                 var scale = world.Get<Time>().Scale;
 
-                Vector2 direction;
-                if (entity.Has<NavigationAgent2D>())
-                {
-                    var navigationAgent = entity.Get<NavigationAgent2D>();
-                    navigationAgent.TargetPosition = move.Position;
-
-                    direction = body.Position
-                        .DirectionTo(navigationAgent.GetNextPathPosition())
-                        .Normalized();
-                }
-                else
-                {
-                    direction = body.Position
+                Vector2 direction = body.Position
                         .DirectionTo(move.Position)
                         .Normalized();
-                }
 
                 var vector = direction * speed.Value * scale * Physics.SPEED_SCALE;
 
@@ -98,18 +85,11 @@ public class Moves
 
                 var collision = body.MoveAndCollide(vector);
 
-                if (body.Position.IsEqualApprox(move.Position))
-                {
-                    move.Invoke(entity);
-                    entity.Remove<Move>();
-                }
-
                 if (collision != null)
                 {
                     var other = collision.GetCollider().GetEntity(world);
 
-                    move.SetException(new CollisionException(other));
-                    entity.Remove<Move>();
+                    entity.Failure(move, new CollisionException(other));
 
                     entity.Trigger<CollisionTrigger>(other);
 
@@ -118,5 +98,27 @@ public class Moves
                         other.Trigger<CollisionTrigger>(entity);
                     }
                 }
+
+                if (body.Position.IsEqualApprox(move.Position))
+                {
+                    entity.Success(move);
+                }
             });
+
+        world.Routine<Tasks>().NoReadonly().Each((ref Tasks tasks) =>
+        {
+            world.DeferSuspend();
+
+            try
+            {
+                tasks.Iterate();
+            }
+            finally
+            {
+                world.DeferResume();
+            }
+        });
+
+        return routine;
+    }
 }

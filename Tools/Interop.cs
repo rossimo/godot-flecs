@@ -44,11 +44,11 @@ public static class Interop
 
         if (set == null)
         {
-            set = setMethod.MakeGenericMethod(new Type[] { type });
+            set = setMethod.MakeGenericMethod([type]);
             setCache.Add(type, set);
         }
 
-        set.Invoke(entity, new object[] { entity, component });
+        set.Invoke(entity, [entity, component]);
     }
 
     private static Dictionary<Type, MethodInfo> setCache = new Dictionary<Type, MethodInfo>();
@@ -122,6 +122,24 @@ public static class Interop
         }
     }
 
+    public static void SetComponentMeta(this GodotObject @object, Entity entity)
+    {
+        @object.SetMeta("component", entity.Id.Value);
+    }
+
+    public static Entity GetComponent(this GodotObject @object, World world)
+    {
+        if (@object.HasMeta("component"))
+        {
+            var id = @object.GetMeta("component").AsUInt64();
+            return world.Entity(id);
+        }
+        else
+        {
+            return default;
+        }
+    }
+
     public static bool HasMany(this Type type)
     {
         return type.GetCustomAttributes(typeof(Many), true).Length > 0;
@@ -180,34 +198,34 @@ public static class Interop
                 if (type.IsSubclassOf(typeof(Node)))
                 {
                     initializeNodeComponentMethod
-                        .MakeGenericMethod(new Type[] { type })
-                        .Invoke(null, new object?[] { world });
+                        .MakeGenericMethod([type])
+                        .Invoke(null, [world, entity]);
                 }
 
                 if (type.IsAssignableTo(typeof(Script)))
                 {
                     initializeScriptComponentMethod
-                        .MakeGenericMethod(new Type[] { type })
-                        .Invoke(null, new object?[] { world });
+                        .MakeGenericMethod([type])
+                        .Invoke(null, [world, entity]);
                 }
             });
     }
 
     private static MethodInfo initializeNodeComponentMethod = typeof(Interop)
         .GetMethods()
-        .First(m => m.ToString() == "Void InitializeNodeComponent[N](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void InitializeNodeComponent[N](Flecs.NET.Core.World, Flecs.NET.Core.Entity)");
 
-    public static void InitializeNodeComponent<N>(World world) where N : Node
+    public static void InitializeNodeComponent<N>(World world, Entity componentId) where N : Node
     {
-        SetNodeSystem<N>(world);
+        SetNodeSystem<N>(world, componentId);
         RemoveNodeSystem<N>(world);
     }
 
     private static MethodInfo initializeScriptComponentMethod = typeof(Interop)
         .GetMethods()
-        .First(m => m.ToString() == "Void InitializeScriptComponent[S](Flecs.NET.Core.World)");
+        .First(m => m.ToString() == "Void InitializeScriptComponent[S](Flecs.NET.Core.World, Flecs.NET.Core.Entity)");
 
-    public static void InitializeScriptComponent<S>(World world) where S : Script
+    public static void InitializeScriptComponent<S>(World world, Entity componentId) where S : Script
     {
         ScriptNodeObserver<S>(world);
     }
@@ -216,26 +234,25 @@ public static class Interop
     {
         world.Observer<S>()
             .Event(Ecs.OnSet)
-            .Each((Entity entity, ref S script) =>
-            {
-                RunScript<S>(entity, script);
-            });
+            .Each((Entity entity, ref S script) => RunScript(entity, script));
     }
 
     static async void RunScript<S>(Entity entity, S script) where S : Script
     {
+        var entityId = entity.Id.Value;
+
         var world = entity.CsWorld();
+
         try
         {
             await script.Run(entity);
-
             script.Invoke(entity);
         }
         catch (Exception exception)
         {
-            if (((exception is DeadEntityException entityEx && entityEx.Entity.Id.Value != entity.Id.Value)
+            if (((exception is DeadEntityException entityEx && entityEx.EntityId != entity.Id.Value)
                     || exception is not DeadEntityException) &&
-                ((exception is ScriptRemovedException scriptEx && scriptEx.Entity.Id.Value != entity.Id.Value)
+                ((exception is ScriptRemovedException scriptEx && scriptEx.EntityId != entityId)
                     || exception is not ScriptRemovedException) &&
                 !(entity.IsAlive() && entity.Has<Destructing>()) &&
                 !world.Has<Destructing>())
@@ -264,9 +281,16 @@ public static class Interop
                     GD.Print($"{entity} remove {component.GetType()}");
                 }
 
-                if (component is Command command && !command.Promise.Task.IsCompleted)
+                if (component is Command command)
                 {
-                    command.Promise.SetException(new ComponentRemovedException());
+                    if (command.TaskStatus == TaskStatus.Running)
+                    {
+                        command.Exception = new ComponentRemovedException<C>(entity);
+                        command.TaskStatus = TaskStatus.Failed;
+                        world.Get<Tasks>().Commands.Add(command);
+                    }
+
+                    world.Get<Tasks>().Commands.Add(command);
                 }
 
                 if (GDScript.IsInstanceValid(component))
@@ -276,7 +300,7 @@ public static class Interop
             });
     }
 
-    public static void SetNodeSystem<C>(this World world) where C : Node
+    public static void SetNodeSystem<C>(this World world, Entity componentId) where C : Node
     {
         world.Observer<C>()
             .Event(Ecs.OnSet)
@@ -288,6 +312,7 @@ public static class Interop
                 }
 
                 component.SetEntityMeta(entity);
+                component.SetComponentMeta(componentId);
 
                 if (entity.Has<Entity2D>())
                 {
