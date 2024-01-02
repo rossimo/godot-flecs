@@ -1,40 +1,51 @@
 using Flecs.NET.Core;
 
-public enum TaskStatus
-{
-    Running,
-    Success,
-    Failed
-}
-
 public partial class Command : BootstrapNode2D, ITask
 {
-    public readonly TaskCompletionSource _Promise = new TaskCompletionSource();
-
-    public TaskStatus TaskStatus = TaskStatus.Running;
-
-    public Exception? Exception = null;
-
     public TaskCompletionSource Promise { get => _Promise; }
 
     public Task Task { get => Promise.Task; }
 
-    public bool TryNotify()
+    private TaskCompletionSource _Promise = new TaskCompletionSource();
+
+    private bool Complete;
+
+    private Exception? Exception = null;
+
+    public void SetResult(World world)
+    {
+        if (!Complete)
+        {
+            Complete = true;
+            world.Get<Tasks>().Add(this);
+        }
+    }
+
+    public void SetException(World world, Exception exception)
+    {
+        if (!Complete)
+        {
+            Complete = true;
+            Exception = exception;
+            world.Get<Tasks>().Add(this);
+        }
+    }
+
+    public void Yield()
     {
         if (Exception == null)
         {
-            return _Promise.TrySetResult();
+            _Promise.SetResult();
         }
         else
         {
-            return _Promise.TrySetException(Exception);
+            _Promise.SetException(Exception);
         }
     }
 }
 
 public static class CommandUtils
 {
-
     public static void Success<C>(this Entity entity, bool remove = true) where C : Command
     {
         if (entity.Has<C>())
@@ -53,12 +64,7 @@ public static class CommandUtils
         }
 
         command.Invoke(entity);
-
-        if (command.TaskStatus == TaskStatus.Running)
-        {
-            command.TaskStatus = TaskStatus.Success;
-            world.Get<Tasks>().Commands.Add(command);
-        }
+        command.SetResult(world);
     }
 
     public static void Failure<C>(this Entity entity, Exception exception, bool remove = true) where C : Command
@@ -78,12 +84,7 @@ public static class CommandUtils
             entity.Remove<C>();
         }
 
-        if (command.TaskStatus == TaskStatus.Running)
-        {
-            command.Exception = exception;
-            command.TaskStatus = TaskStatus.Failed;
-            world.Get<Tasks>().Commands.Add(command);
-        }
+        command.SetException(world, exception);
     }
 }
 

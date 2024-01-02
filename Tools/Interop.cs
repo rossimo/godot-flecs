@@ -283,14 +283,7 @@ public static class Interop
 
                 if (component is Command command)
                 {
-                    if (command.TaskStatus == TaskStatus.Running)
-                    {
-                        command.Exception = new ComponentRemovedException<C>(entity);
-                        command.TaskStatus = TaskStatus.Failed;
-                        world.Get<Tasks>().Commands.Add(command);
-                    }
-
-                    world.Get<Tasks>().Commands.Add(command);
+                    command.SetException(world, new ComponentRemovedException<C>(entity));
                 }
 
                 if (GDScript.IsInstanceValid(component))
@@ -408,6 +401,27 @@ public static class Interop
         });
 
         return components;
+    }
+
+    public static Routine Yield(this Routine routine, World world)
+    {
+        world.Routine<Tasks>()
+            .NoReadonly()
+            .Each((ref Tasks tasks) =>
+            {
+                world.DeferSuspend();
+
+                try
+                {
+                    tasks.Yield();
+                }
+                finally
+                {
+                    world.DeferResume();
+                }
+            });
+
+        return routine;
     }
 }
 

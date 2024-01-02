@@ -34,21 +34,26 @@ public partial class WorldNode : Node2D
 
         World.Progress();
 
-        World.Get<Tasks>().Iterate();
+        World.Get<Tasks>().Yield();
     }
 }
 
 public class Tasks
 {
-    public List<Command> Commands = new List<Command>();
+    private List<Command> _Tasks = new List<Command>();
 
-    public void Iterate()
+    public void Add(Command task)
     {
-        foreach (var command in Commands)
+        _Tasks.Add(task);
+    }
+
+    public void Yield()
+    {
+        foreach (var command in _Tasks)
         {
-            command.TryNotify();
+            command.Yield();
         }
 
-        Commands.Clear();
+        _Tasks.Clear();
     }
 }

@@ -46,9 +46,8 @@ public class Moves
                 }
             });
 
-    public static Routine MoveAndCollide(World world)
-    {
-        var routine = world.Routine<Move, CharacterBody2D, Speed>()
+    public static Routine MoveAndCollide(World world) =>
+        world.Routine<Move, CharacterBody2D, Speed>()
             .Each((Entity entity, ref Move move, ref CharacterBody2D body, ref Speed speed) =>
             {
                 entity.Set(new LastIntent()
@@ -103,22 +102,6 @@ public class Moves
                 {
                     entity.Success(move);
                 }
-            });
-
-        world.Routine<Tasks>().NoReadonly().Each((ref Tasks tasks) =>
-        {
-            world.DeferSuspend();
-
-            try
-            {
-                tasks.Iterate();
-            }
-            finally
-            {
-                world.DeferResume();
-            }
-        });
-
-        return routine;
-    }
+            })
+            .Yield(world);
 }
