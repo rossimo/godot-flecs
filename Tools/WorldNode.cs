@@ -12,7 +12,7 @@ public partial class WorldNode : Node2D
 
         World = World.Create();
 
-        World.Set(new Tasks());
+        World.Set(new Asyncs());
 
         Interop.Observers(World);
 
@@ -34,26 +34,6 @@ public partial class WorldNode : Node2D
 
         World.Progress();
 
-        World.Get<Tasks>().Yield();
-    }
-}
-
-public class Tasks
-{
-    private List<Command> _Tasks = new List<Command>();
-
-    public void Add(Command task)
-    {
-        _Tasks.Add(task);
-    }
-
-    public void Yield()
-    {
-        foreach (var command in _Tasks)
-        {
-            command.Yield();
-        }
-
-        _Tasks.Clear();
+        World.Get<Asyncs>().Async();
     }
 }

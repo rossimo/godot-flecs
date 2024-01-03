@@ -122,22 +122,9 @@ public static class Interop
         }
     }
 
-    public static void SetComponentMeta(this GodotObject @object, Entity entity)
+    public static UntypedComponent GetComponent(this object @object, World world)
     {
-        @object.SetMeta("component", entity.Id.Value);
-    }
-
-    public static Entity GetComponent(this GodotObject @object, World world)
-    {
-        if (@object.HasMeta("component"))
-        {
-            var id = @object.GetMeta("component").AsUInt64();
-            return world.Entity(id);
-        }
-        else
-        {
-            return default;
-        }
+        return world.Component(@object.GetType().Name);
     }
 
     public static bool HasMany(this Type type)
@@ -254,7 +241,7 @@ public static class Interop
                     || exception is not DeadEntityException) &&
                 ((exception is ScriptRemovedException scriptEx && scriptEx.EntityId != entityId)
                     || exception is not ScriptRemovedException) &&
-                !(entity.IsAlive() && entity.Has<Destructing>()) &&
+                !entity.Has<Destructing>() &&
                 !world.Has<Destructing>())
             {
                 GD.PrintErr(exception);
@@ -281,9 +268,9 @@ public static class Interop
                     GD.Print($"{entity} remove {component.GetType()}");
                 }
 
-                if (component is Command command)
+                if (component is IAsync async)
                 {
-                    command.SetException(world, new ComponentRemovedException<C>(entity));
+                    async.SetException(world, new ComponentRemovedException<C>(entity));
                 }
 
                 if (GDScript.IsInstanceValid(component))
@@ -305,7 +292,6 @@ public static class Interop
                 }
 
                 component.SetEntityMeta(entity);
-                component.SetComponentMeta(componentId);
 
                 if (entity.Has<Entity2D>())
                 {
@@ -403,17 +389,17 @@ public static class Interop
         return components;
     }
 
-    public static Routine Yield(this Routine routine, World world)
+    public static Routine Async(this Routine routine, World world)
     {
-        world.Routine<Tasks>()
+        world.Routine<Asyncs>()
             .NoReadonly()
-            .Each((ref Tasks tasks) =>
+            .Each((ref Asyncs tasks) =>
             {
                 world.DeferSuspend();
 
                 try
                 {
-                    tasks.Yield();
+                    tasks.Async();
                 }
                 finally
                 {
@@ -426,3 +412,13 @@ public static class Interop
 }
 
 public struct Destructing;
+
+public class ComponentRemovedException<C> : Exception
+{
+    public readonly Entity Entity;
+
+    public ComponentRemovedException(Entity entity) : base($"{typeof(C)} has been removed from {entity}")
+    {
+        Entity = entity;
+    }
+}

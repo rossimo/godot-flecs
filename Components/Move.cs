@@ -82,6 +82,11 @@ public class Moves
                     vector = move.Position - body.Position;
                 }
 
+                if (body.Position.IsEqualApprox(move.Position))
+                {
+                    entity.Success(move);
+                }
+
                 var collision = body.MoveAndCollide(vector);
 
                 if (collision != null)
@@ -97,11 +102,6 @@ public class Moves
                         other.Trigger<CollisionTrigger>(entity);
                     }
                 }
-
-                if (body.Position.IsEqualApprox(move.Position))
-                {
-                    entity.Success(move);
-                }
             })
-            .Yield(world);
+            .Async(world);
 }

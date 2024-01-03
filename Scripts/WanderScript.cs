@@ -21,7 +21,7 @@ public partial class WanderScript : Script
 
 			try
 			{
-				await entity.Set<WanderScript, Move>(this, new Move()
+				await entity.Set(this, new Move()
 				{
 					Position = new Vector2()
 					{
